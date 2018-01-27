@@ -27,7 +27,7 @@ int clientSd;
 
 class DrawShip
 {
-    friend class boost::serialization::access;
+    //friend class boost::serialization::access;
 private:
     Ship* ship;
     sf::Sprite* sprite;
