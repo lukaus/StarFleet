@@ -214,6 +214,7 @@ int main()
 
     selector.setPosition(sf::Vector2f(grid.offset_to_pixel(sf::Vector2f(99, 99))));
 
+    
 #pragma endregion
     float delt;
     int clickCount = 0;
