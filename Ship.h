@@ -172,6 +172,8 @@ public:
     int getShieldMax(Shield);
     void setShieldMax(Shield, int);
 
+    Ship& operator=(const Ship &ship);
+
 	string toString();
 
 };

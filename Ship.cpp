@@ -316,3 +316,22 @@ string    Ship::toString()
 	    " PowerCoreTot: " + pctString + " HullPointsCur: " + hpcString + 
 	    " HullPointsMax: " + hpmString + "Shields:" + shieldString);
 }
+Ship& Ship::operator= (const Ship &ship)
+{
+    // do the copy
+    x_pos = ship.x_pos;
+    y_pos = ship.y_pos;
+    targetLock = ship.targetLock;
+    armourClass = ship.armourClass;
+    hullPointsMax = ship.hullPointsMax;
+    hullPointsCur = ship.hullPointsCur;
+
+    for (int i = 0; i < 4; i++)
+    {
+    	shieldTot[i] = ship.shieldTot[i];
+    	shieldCur[i] = ship.shieldCur[i];
+    }
+ 
+    // return the existing object so we can chain this operator
+    return *this;
+}
