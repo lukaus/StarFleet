@@ -199,6 +199,7 @@ int main()
     sf::Vector2f mPos_old = window.getView().getCenter();
     
     bool shipSelected;
+    Ship * selectedShip = NULL;
     int clientShip = 0; // index for this client's DrawShip in ships vector
 
     sf::Font font;
@@ -251,16 +252,16 @@ int main()
 
     selector.setPosition(sf::Vector2f(grid.offset_to_pixel(sf::Vector2f(99, 99))));
 
-    sf::CircleShape selectedShip(20,6);
-    sf::Vector2f selectedShipPosition = selectedShip.getOrigin();
+    sf::CircleShape selectedShipOverlay(20,6);
+    sf::Vector2f selectedShipPosition = selectedShipOverlay.getOrigin();
 
-    selectedShipPosition.x = selectedShip.getOrigin().x + (selectedShip.getLocalBounds().height / 2);
-    selectedShipPosition.y = selectedShip.getOrigin().y + (selectedShip.getLocalBounds().height / 2);
+    selectedShipPosition.x = selectedShipOverlay.getOrigin().x + (selectedShipOverlay.getLocalBounds().height / 2);
+    selectedShipPosition.y = selectedShipOverlay.getOrigin().y + (selectedShipOverlay.getLocalBounds().height / 2);
 
-    selectedShip.setOrigin(selectedShipPosition);
-    selectedShip.setFillColor(sf::Color(255, 255, 0, 100));
+    selectedShipOverlay.setOrigin(selectedShipPosition);
+    selectedShipOverlay.setFillColor(sf::Color(255, 255, 0, 50));
 
-    selectedShip.setPosition(sf::Vector2f(grid.offset_to_pixel(sf::Vector2f(99,99))));
+    selectedShipOverlay.setPosition(sf::Vector2f(grid.offset_to_pixel(sf::Vector2f(99,99))));
 
 #pragma endregion
     float delt;
@@ -308,15 +309,17 @@ int main()
                         if(shipSelected == false)
                         {
                             cout << "Ship here: \n" << shipHere->getShip()->toString();
-                            selectedShip.setPosition(grid.offset_to_pixel(clickPosition));
+                            selectedShipOverlay.setPosition(grid.offset_to_pixel(clickPosition));
                             selector.setPosition(sf::Vector2f(grid.offset_to_pixel(sf::Vector2f(99,99))));
                             shipSelected = true;
+                            selectedShip = shipHere->getShip();
                         }
                         else
                         {
                             cout << "Deselecting ship\n";
                             shipSelected = false;
-                            selectedShip.setPosition(grid.offset_to_pixel(sf::Vector2f(99,99)));
+                            selectedShip = NULL;
+                            selectedShipOverlay.setPosition(grid.offset_to_pixel(sf::Vector2f(99,99)));
                         }
                     }
                 }
@@ -453,14 +456,13 @@ int main()
                     else
                     {
                         camera.rotate(30.0);
-
                     }
                     window.setView(camera);
                     rotated = !rotated;
                 }
                 if(shipSelected)
                 {
-                    selectedShip.setPosition(sf::Vector2f(grid.offset_to_pixel( ships[clientShip].position() )));     
+                    selectedShipOverlay.setPosition(sf::Vector2f(grid.offset_to_pixel( ships[clientShip].position() )));     
                 }
 
                 break;
@@ -485,7 +487,7 @@ int main()
         window.draw(testGrid);
         DrawShips(window, grid, ships);
         window.draw(selector);
-        window.draw(selectedShip);
+        window.draw(selectedShipOverlay);
 
         window.setView(hud);
         //window.draw(hudRect);
