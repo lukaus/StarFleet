@@ -191,7 +191,7 @@ void DrawShips(sf::RenderWindow & window, HexGrid &grid, vector<DrawShip> & ship
 DrawShip * GetShipHere(sf::Vector2f pos, vector<DrawShip> & shipList);
 
 std::vector<Ship*> ParseShipMessage(char * message, int message_size);
-char* SerializeShipArray(std::vector<Ship*> shipArr, int& message_size);
+char* CrunchetizeMeCapn(std::vector<Ship*> shipArr, int& message_size);
 std::vector<Projectile*> ParseProjectileMessage(char* message);
 char* SerializeProjectileArray(std::vector<Projectile*> projArr);
 
@@ -231,7 +231,8 @@ int main(int argc, char *argv[])
 
     // For the messages to the server upon key presses
 
-    char msg[5]; 
+
+//    char msg[5000];
 
     // Usage
     if(argc != 3)
@@ -279,7 +280,6 @@ int main(int argc, char *argv[])
 
     bool leftMouseDragging = false;
     bool potentialDoubleLeftClick = false;
-
     sf::View camera = window.getView();
     sf::View hud = sf::View(window.getView());
 
@@ -313,7 +313,7 @@ int main(int argc, char *argv[])
 #pragma region GameLogic
     DrawShip ds;
     Ship* testShip = new Ship();
-
+/*
     testShip->setArmourClass(20);
     testShip->setTargetLock(10);
     testShip->setHullPointsMax(100);
@@ -326,9 +326,10 @@ int main(int argc, char *argv[])
     testShip->setShieldCur(Shield::Aft, 92);
     testShip->setShieldCur(Shield::Port, 93);
     testShip->setShieldCur(Shield::Starboard, 95);
-
+*/
     sf::Sprite* testSprite = new sf::Sprite();
     sf::Texture testTex;
+    std::vector<Ship*> ships;
     if (testTex.loadFromFile("./images/Sprite1ENG_ON.png"/*, sf::IntRect(10, 10, 32, 34)*/))
     {
         
@@ -344,10 +345,9 @@ int main(int argc, char *argv[])
         ds.setSprite(testSprite);
         ds.setShip(testShip);
         drawShips.push_back(ds);
-        std::vector<Ship*> ships;
         ships.push_back(drawShips.at(0).getShip());
        /* int message_size;
-        char* testSerialization = SerializeShipArray(ships, message_size);
+        char* testSerialization = CrunchetizeMeCapn(ships, message_size);
         cerr << "testSerialization: " << message_size << endl;
 
         for(int i = 0; i < message_size; i++)
@@ -582,34 +582,38 @@ int main(int argc, char *argv[])
             inputDelayTimer.restart();
         
 #pragma region testMovement
+            bool moved = false;
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
             {
+                moved = true;
                 drawShips[0].Left();
-                memset(&msg, 0, sizeof(msg));
-                strcpy(msg, "Left");
-                send(clientSd, (char*)&msg, strlen(msg), 0);
 
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
             {
+                moved = true;
                 drawShips[0].Right();
-                memset(&msg, 0, sizeof(msg));
-                strcpy(msg, "Rigt");
-                send(clientSd, (char*)&msg, strlen(msg), 0);
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
             {
+                moved = true;
                 drawShips[0].Forward(grid);
-                memset(&msg, 0, sizeof(msg));
-                strcpy(msg, "Up");
-                send(clientSd, (char*)&msg, strlen(msg), 0);
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
             {
+                moved = true;
                 drawShips[0].Back(grid);
-                memset(&msg, 0, sizeof(msg));
-                strcpy(msg, "Down");
-                send(clientSd, (char*)&msg, strlen(msg), 0);
+            }
+
+            if(moved)
+            {
+//                memset(&msg, 0, sizeof(msg));
+  //              strcpy(msg, "Down");
+    //            send(clientSd, (char*)&msg, strlen(msg), 0);
+                
+                int message_length;
+                char * message = CrunchetizeMeCapn(ships, message_length); 
+                send(clientSd, message, message_length, 0);
             }
             
             if(shipSelected)
@@ -730,7 +734,7 @@ std::vector<Projectile*> ParseProjectileMessage(char* message)
 
 }
 
-char * SerializeShipArray(std::vector<Ship*> shipArr, int &message_size)
+char * CrunchetizeMeCapn(std::vector<Ship*> shipArr, int &message_size)
 {
     message_size = sizeof(char) + sizeof(int) + sizeof(int) + (shipArr.size() * (sizeof(int) * SHIP_INTS));
     //cerr << "message_size: " << message_size << endl;
