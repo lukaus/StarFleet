@@ -175,7 +175,16 @@ int main()
     sf::Vector2u winSize = window.getSize();
     sf::RectangleShape hudRect = sf::RectangleShape();
     sf::Vector2f mPos_old = window.getView().getCenter();
-
+    sf::Font font;
+    if (!font.loadFromFile("testFont.ttf")) {
+    }
+    sf::Text hudText;;
+    hudText.setFont(font);
+    hudText.setPosition(0,0);
+    hudText.setString("Test Hud");
+    hudText.setCharacterSize(150);
+    hudText.setColor(sf::Color::White);
+    hudText.setStyle(sf::Text::Bold | sf::Text::Underlined);
     sf::Clock leftDragTimer;
     sf::Clock doubleLeftClickTimer;
 
@@ -416,7 +425,7 @@ int main()
         
         window.setView(hud);
         window.draw(hudRect);
-        
+        window.draw(hudText);
         window.display();
         window.setView(camera);
 	}
