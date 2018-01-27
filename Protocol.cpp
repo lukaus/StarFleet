@@ -78,6 +78,7 @@ std::vector<Ship*> Protocol::ParseShipMessage(char * message, int message_size)
 
     return shipArray;
 }
+
 std::vector<Projectile*> Protocol::ParseProjectileMessage(char* message)
 {
 

@@ -1,14 +1,16 @@
+#include "Ship.h"
+
 #ifndef PROJECTILE_H
 #define PROJECTILE_H
 
-enum Orientation : int
+enum POrientation : int
 {
-    EAST,
-    SOUTHEAST,
-    SOUTHWEST,
-    WEST,
-    NORTHWEST,
-    NORTHEAST
+    PEAST,
+    PSOUTHEAST,
+    PSOUTHWEST,
+    PWEST,
+    PNORTHWEST,
+    PNORTHEAST
 };
 
 class Projectile
@@ -18,12 +20,12 @@ private:
     int x_pos;
     int y_pos;
     int damage;
-	Orientation orientation; 
+	 POrientation orientation; 
 
     float speed; // if we can, nbd tho
 public:
    Projectile();
-   Projectile(int roll, int x_pos, int y_pos, Orientation orientation);
+   Projectile(int roll, int x_pos, int y_pos, POrientation orientation);
    // accessors and mutators here
    int getRoll();
    void setRoll(int);
@@ -37,8 +39,8 @@ public:
    int getDamage();
    void setDamage(int);
 
-   Orientation getOrientation();
-   void setOrientaiton(Orientation);
+   POrientation getOrientation();
+   void setOrientation(POrientation o);
 };
 
 #endif

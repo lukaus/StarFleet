@@ -10,10 +10,10 @@ using namespace std;
 namespace Protocol
 {
 
-    static std::vector<Ship*> ParseShipMessage(char * message, int message_size);
-    static char* CrunchetizeMeCapn(std::vector<Ship*> shipArr, int& message_size);
-    static std::vector<Projectile*> ParseProjectileMessage(char* message);
-    static char* SerializeProjectileArray(std::vector<Projectile*> projArr);
+    std::vector<Ship*> ParseShipMessage(char * message, int message_size);
+    char* CrunchetizeMeCapn(std::vector<Ship*> shipArr, int& message_size);
+    std::vector<Projectile*> ParseProjectileMessage(char* message);
+    char* SerializeProjectileArray(std::vector<Projectile*> projArr);
 
 }
 #endif

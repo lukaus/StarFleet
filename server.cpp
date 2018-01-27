@@ -33,6 +33,8 @@ static char* ServerSerializeProjectileArray(std::vector<Projectile*> projArr);
 */
 int main(int argc , char *argv[])  
 {  
+    using namespace Protocol;
+    
     int opt = TRUE;  
     int master_socket;
     int addrlen;

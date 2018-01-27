@@ -1,4 +1,5 @@
 #include "Projectile.h"
+#include "Ship.h"
 
 Projectile::Projectile()
 {
@@ -6,7 +7,7 @@ Projectile::Projectile()
     y_pos = 0;
 }
 
-Projectile::Projectile(int roll, int x_pos, int y_pos, Orientation orientation)
+Projectile::Projectile(int roll, int x_pos, int y_pos, POrientation orientation)
 {
 }
 // mutators and accessors
@@ -47,11 +48,12 @@ void Projectile::setDamage(int d)
     damage = d;
 }
 
-Orientatation Projectile::getOrientation()
+POrientation Projectile::getOrientation()
 {
     return orientation;
 }
-void Projectile::setOrientation(Orientation o)
+
+void Projectile::setOrientation(POrientation o)
 {
     orientation = o;
 }
