@@ -197,7 +197,8 @@ int main()
     sf::Text hudText;
     hudText.setFont(font);
     hudText.setPosition(0,-15);
-    hudText.setString("~MY SHIP~\nSHIELD:\n\tF:\n\tB:\n\tL:\n\tR:\nHEALTH:\nSPEED:\nPOWER:\n\tCURR:\n\tAVAIL:\n\t");
+    string mystring = ("~MYSHIP~\nSHIELD:\n\tF:\n\tB:\n\tL:\n\tR:\nHEALTH:\nSPEED:\nPOWER:\n\tCURR:\n\tAVAIL:\n\t");
+    hudText.setString(mystring);
     hudText.setCharacterSize(35);
     hudText.setColor(sf::Color::White);
     hudText.setStyle(sf::Text::Bold);
