@@ -8,6 +8,7 @@
 #include <arpa/inet.h>    //close 
 #include <sys/types.h> 
 #include <sys/socket.h> 
+#include <errno.h>
 #include <string>
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros 
 using namespace std;    
@@ -90,6 +91,7 @@ int main(int argc , char *argv[])
     numConnected = 0;
     while(TRUE)  
     {  
+        cerr << "error: " << errno << endl;
         //clear the socket set 
         FD_ZERO(&readfds);  
     
@@ -199,7 +201,7 @@ int main(int argc , char *argv[])
     }  
     close(master_socket);
     for(i = 0; i < 30; i++)
-    	close(client_socket[i]);
+        close(client_socket[i]);
         
     return 0;  
 }  
