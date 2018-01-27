@@ -184,17 +184,17 @@ int main()
     sf::View hud = sf::View(window.getView());
 
     sf::Vector2u winSize = window.getSize();
-    sf::RectangleShape hudRect = sf::RectangleShape(sf::Vector2f(0, 670));
-    hudRect.setSize(sf::Vector2f(1270, 50));
+    //sf::RectangleShape hudRect = sf::RectangleShape(sf::Vector2f(0, 670));
+    //hudRect.setSize(sf::Vector2f(1270, 50));
     sf::Vector2f mPos_old = window.getView().getCenter();
     sf::Font font;
     if (!font.loadFromFile("testFont.ttf")) {
     }
-    sf::Text hudText;;
+    sf::Text hudText;
     hudText.setFont(font);
-    hudText.setPosition(0,-60);
-    hudText.setString("Test Hud");
-    hudText.setCharacterSize(100);
+    hudText.setPosition(0,-15);
+    hudText.setString("~MY SHIP~\nSHIELD:\n\tF:\n\tB:\n\tL:\n\tR:\nHEALTH:\nSPEED:\nPOWER:\n\tCURR:\n\tAVAIL:\n\t");
+    hudText.setCharacterSize(35);
     hudText.setColor(sf::Color::White);
     hudText.setStyle(sf::Text::Bold);
     sf::Clock leftDragTimer;
@@ -256,7 +256,7 @@ int main()
 
     winSize = window.getSize();
     //hudRect.setPosition(sf::Vector2f(50, 50));
-    hudRect.setSize(sf::Vector2f(30, 50));
+    //hudRect.setSize(sf::Vector2f(30, 50));
     sf::Event event;
     while (window.isOpen())
     {
@@ -442,8 +442,8 @@ int main()
                 sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
                 camera = sf::View(visibleArea);
                 hud = sf::View(visibleArea);
-                hudRect.setSize(sf::Vector2f(event.size.width-20, 50));
-                hudRect.setPosition(sf::Vector2f(10, event.size.height - 100));
+                //hudRect.setSize(sf::Vector2f(event.size.width-20, 50));
+                //hudRect.setPosition(sf::Vector2f(10, event.size.height - 100));
 
                 window.setView(sf::View(visibleArea));
             }
@@ -458,7 +458,7 @@ int main()
         window.draw(selectedShip);
 
         window.setView(hud);
-        window.draw(hudRect);
+        //window.draw(hudRect);
         window.draw(hudText);
         window.display();
         window.setView(camera);
