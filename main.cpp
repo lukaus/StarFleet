@@ -509,6 +509,7 @@ int main(int argc, char *argv[])
 
                 break;
             case sf::Event::KeyPressed:
+                if(event.key.code == sf::Keyboard::R)
                 {
                     if (rotated)
                     {
