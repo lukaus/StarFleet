@@ -35,7 +35,7 @@ public:
    void setY_pos(int);
 
    int getDamage();
-   void setDamage();
+   void setDamage(int);
 
    Orientation getOrientation();
    void setOrientaiton(Orientation);
