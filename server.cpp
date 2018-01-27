@@ -11,6 +11,8 @@
 #include <errno.h>
 #include <string>
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros 
+#include <boost/serialization/list.hpp>
+
 using namespace std;    
 
 #define TRUE   1 
@@ -175,7 +177,7 @@ int main(int argc , char *argv[])
                         
                     //Close the socket and mark as 0 in list for reuse 
                     close( sd );  
-                    client_socket[i] = 0;  
+                    client_socket[i] = 0;
                 }  
                     
                 //Echo back the message that came in 

@@ -13,10 +13,11 @@
 #include "HexGrid.h"
 #include "Ship.h"
 #include "Crewman.h"
+#include <boost/serialization/list.hpp>
 
 #define DRAG_TIMEOUT 200			// in milliseconds
 #define DOUBLE_CLICK_TIMEOUT 500	// in milliseconds
-#define INPUT_DELAY 100 // milliseconds
+#define INPUT_DELAY 0 // milliseconds
 
 using namespace std;
 
@@ -25,6 +26,7 @@ int clientSd;
 
 class DrawShip
 {
+    friend class boost::serialization::access;
 private:
     Ship* ship;
     sf::Sprite* sprite;
@@ -219,6 +221,7 @@ int main(int argc, char *argv[])
     // Client-server stuff
 
     // For the messages to the server upon key presses
+
     char msg[5]; 
 
     // Usage
@@ -253,7 +256,6 @@ int main(int argc, char *argv[])
 
     // Spawn the thread to check for incoming messages from the server
     thread t1(checkerThread);
-
     // window logic
     sf::RenderWindow window(sf::VideoMode(1270, 720), "Starfinder Commander");
     window.setFramerateLimit(60);
@@ -556,7 +558,7 @@ int main(int argc, char *argv[])
             {
                 ships[0].Right();
                 memset(&msg, 0, sizeof(msg));
-                strcpy(msg, "Right");
+                strcpy(msg, "Rigt");
                 send(clientSd, (char*)&msg, strlen(msg), 0);
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
