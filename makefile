@@ -17,3 +17,6 @@ release:
 assembly:
 	g++ -c main.cpp HexGrid.cpp Crewman.cpp Ship.cpp -S
 	g++ main.o HexGrid.o Crewman.o Ship.o -o starFleet -lsfml-graphics -lsfml-window -lsfml-system -lpthread
+
+server:
+	g++ server.cpp -o server
