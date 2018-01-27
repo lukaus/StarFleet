@@ -301,7 +301,7 @@ int main(int argc, char *argv[])
     string mystring = ("~MYSHIP~\nSHIELD:\n\tF:\n\tB:\n\tL:\n\tR:\nHEALTH:\nSPEED:\nPOWER:\n\tCURR:\n\tAVAIL:\n\t");
     hudText.setString(mystring);
     hudText.setCharacterSize(35);
-    hudText.setFillColor(sf::Color(255, 255, 255, 255));
+    hudText.setColor(sf::Color::White);
     hudText.setStyle(sf::Text::Bold);
     sf::Clock leftDragTimer;
     sf::Clock doubleLeftClickTimer;
