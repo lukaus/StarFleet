@@ -1,5 +1,33 @@
 #include "Ship.h"
 
+        Ship::Ship()
+{
+    x_pos = 0;
+    y_pos = 0;
+}
+
+        Ship::Ship(int sp, Maneuverability m, int ac, int tl, int dm, int crit, int pcc, int hp, int * shield)
+{
+    x_pos = 0;
+    y_pos = 0;
+
+    speed = sp;
+    maneuv = m;
+    armourClass = ac;
+    targetLock = tl;
+    damageThreshold = dm;
+    criticalThreshold = crit;
+    powerCoreTot = pcc;
+    powerCoreAvl = pcc;
+    hullPointsMax = hp;
+    hullPointsCur = hp;
+
+    for (int i = 0; i < 4; ++i)
+    {
+        shieldTot[i] = shield[i];
+        shieldCur[i] = shield[i];
+    }
+}
 
 int		Ship::getCost()
 {
@@ -209,4 +237,50 @@ Orientation Ship::getOrientation()
 void        Ship::setOrientation(Orientation o) 
 {
     orientation = o;
+}
+string    Ship::toString()
+{
+    string manu;
+    string sizeString = std::to_string(size);
+    string speedString = std::to_string(speed);
+    string tarlockString = std::to_string(targetLock);
+    string dtString = std::to_string(damageThreshold);
+    string ctString = std::to_string(criticalThreshold);
+    string pctString = std::to_string(powerCoreTot);
+    string pcaString = std::to_string(powerCoreAvl);
+    string hpmString = std::to_string(hullPointsMax);
+    string hpcString = std::to_string(hullPointsCur);
+    string shieldString = "";
+    for (int i=0; i<4; i++){ // builds shieldString with shieldTot array
+	shieldString += " Shield " + std::to_string(i) 
+	+ ": " + std::to_string(shieldCur[i]);
+    }
+
+
+    switch (maneuv){ // determine maneuverability to return
+	case 0:
+	    manu = "Clumsy";
+	    break;
+	case 1:
+	    manu = "Poor";
+	    break;
+	case 3:
+	    manu = "Average";
+	    break;
+	case 4:
+	    manu = "Good";
+	    break;
+	case 5:
+	    manu = "Perfect";
+	    break;
+	default:
+	    manu = "ManeuvErr";
+	    break;
+    };
+
+    return ("Name: " + name + " Speed: " + speedString  + " Maneuv: " + manu + 
+	    " TargetLock: " + tarlockString + " DamageThold " + dtString +
+	    " CritTHold: " + ctString + " PowerCoreAvl: " + pcaString +
+	    " PowerCoreTot: " + pctString + " HullPointsCur: " + hpcString + 
+	    " HullPointsMax: " + hpmString + "Shields:" + shieldString);
 }

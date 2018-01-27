@@ -187,6 +187,10 @@ int main()
     //sf::RectangleShape hudRect = sf::RectangleShape(sf::Vector2f(0, 670));
     //hudRect.setSize(sf::Vector2f(1270, 50));
     sf::Vector2f mPos_old = window.getView().getCenter();
+    
+    bool shipSelected;
+    int clientShip = 0; // index for this client's DrawShip in ships vector
+
     sf::Font font;
     if (!font.loadFromFile("testFont.ttf")) {
     }
