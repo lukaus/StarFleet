@@ -1,5 +1,33 @@
 #include "Ship.h"
 
+        Ship::Ship()
+{
+    x_pos = 0;
+    y_pos = 0;
+}
+
+        Ship::Ship(int sp, Maneuverability m, int ac, int tl, int dm, int crit, int pcc, int hp, int * shield)
+{
+    x_pos = 0;
+    y_pos = 0;
+
+    speed = sp;
+    maneuv = m;
+    armourClass = ac;
+    targetLock = tl;
+    damageThreshold = dm;
+    criticalThreshold = crit;
+    powerCoreTot = pcc;
+    powerCoreAvl = pcc;
+    hullPointsMax = hp;
+    hullPointsCur = hp;
+
+    for (int i = 0; i < 4; ++i)
+    {
+        shieldTot[i] = shield[i];
+        shieldCur[i] = shield[i];
+    }
+}
 
 int		Ship::getCost()
 {
