@@ -24,6 +24,11 @@ public:
         ship = sh;
     }
 
+    Ship * getShip()
+    {
+        return ship;
+    }
+
     int getXpos()
     {
         return this->ship->getXpos();
@@ -32,6 +37,11 @@ public:
     int getYpos()
     {
         return this->ship->getYpos();
+    }
+
+    sf::Vector2f position()
+    {
+        return sf::Vector2f((float)this->ship->getXpos(), (float)this->ship->getYpos());
     }
     
     void setSprite(sf::Sprite* sp)
@@ -248,7 +258,7 @@ int main()
     selectedShipPosition.y = selectedShip.getOrigin().y + (selectedShip.getLocalBounds().height / 2);
 
     selectedShip.setOrigin(selectedShipPosition);
-    selectedShip.setFillColor(sf::Color(0, 255, 0, 100));
+    selectedShip.setFillColor(sf::Color(255, 255, 0, 100));
 
     selectedShip.setPosition(sf::Vector2f(grid.offset_to_pixel(sf::Vector2f(99,99))));
 
@@ -288,15 +298,26 @@ int main()
                 if (event.mouseButton.button == sf::Mouse::Right)
                 {
                     // right button down, set highlight selector
-                    sf::Vector2f clickPosition = grid.offset_to_pixel(grid.pixel_to_offset(sf::Vector2f(mousePos.x, mousePos.y)));
-                    selector.setPosition(clickPosition);
+                    sf::Vector2f clickPosition = grid.pixel_to_offset(sf::Vector2f(mousePos.x, mousePos.y));
+                    cout << "Click at : " << clickPosition.x << ", " << clickPosition.y << endl;
+                    selector.setPosition(grid.offset_to_pixel(clickPosition));
                     // check that grid for a ship at the new position
                     DrawShip* shipHere = GetShipHere(clickPosition, ships);
                     if(shipHere != NULL)
                     {
-                        cout << "Ship here \n";
-                        selectedShip.setPosition(clickPosition);
-                        selector.setPosition(sf::Vector2f(grid.offset_to_pixel(sf::Vector2f(99,99))));
+                        if(shipSelected == false)
+                        {
+                            cout << "Ship here: \n" << shipHere->getShip()->toString();
+                            selectedShip.setPosition(grid.offset_to_pixel(clickPosition));
+                            selector.setPosition(sf::Vector2f(grid.offset_to_pixel(sf::Vector2f(99,99))));
+                            shipSelected = true;
+                        }
+                        else
+                        {
+                            cout << "Deselecting ship\n";
+                            shipSelected = false;
+                            selectedShip.setPosition(grid.offset_to_pixel(sf::Vector2f(99,99)));
+                        }
                     }
                 }
                 if (event.mouseButton.button == sf::Mouse::Middle)
@@ -437,6 +458,11 @@ int main()
                     window.setView(camera);
                     rotated = !rotated;
                 }
+                if(shipSelected)
+                {
+                    selectedShip.setPosition(sf::Vector2f(grid.offset_to_pixel( ships[clientShip].position() )));     
+                }
+
                 break;
 #pragma endregion
             }
