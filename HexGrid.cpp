@@ -109,7 +109,6 @@ sf::Vector2f HexGrid::offset_to_pixel(sf::Vector2f offset)
     coord.y = cellSize * 3.0 / 2.0 * offset.y;
 
     return coord;
-
 }
 
 sf::Vector3f HexGrid::cube_round(sf::Vector3f to_round)

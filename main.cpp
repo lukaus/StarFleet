@@ -17,6 +17,7 @@ private:
     Ship* ship;
     sf::Sprite* sprite;
 
+    bool myTurn = true;
 public:
     void setShip(Ship* sh)
     {
@@ -38,8 +39,34 @@ public:
         window.draw( *this->sprite );
     }
 
+    void Move(HexGrid grid, int x, int y)
+    {
+        if(ValidCoordinates(grid, x, y) == false || myTurn == false)
+        {
+            cout << "Invalid move, reverted.\n";   
+            return;
+        }
+
+        this->ship->setXpos(x);
+        this->ship->setYpos(y);
+    }
+
+    void Orient(HexGrid grid, int dir)
+    {
+        this->ship->setOrientation((Orientation) dir);
+    }
+
+    bool ValidCoordinates(HexGrid grid, int x, int y)
+    {
+        if(x < 0 || x > grid.getCols() || y < 0 || y > grid.getRows())
+            return false;
+        return true;
+    }
+
     void Forward(HexGrid grid)
     {
+        if(myTurn == false)
+            return;
         int gridCols = grid.getCols() - 1;
         int gridRows = grid.getRows() - 1;
         switch (this->ship->getOrientation())
