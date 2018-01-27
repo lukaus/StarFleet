@@ -23,6 +23,16 @@ public:
     {
         ship = sh;
     }
+
+    int getXpos()
+    {
+        return this->ship->getXpos();
+    }
+    
+    int getYpos()
+    {
+        return this->ship->getYpos();
+    }
     
     void setSprite(sf::Sprite* sp)
     {
@@ -151,6 +161,7 @@ public:
 };
 
 void DrawShips(sf::RenderWindow & window, HexGrid &grid, vector<DrawShip> & shipList);
+DrawShip * GetShipHere(sf::Vector2f pos, vector<DrawShip> & shipList);
 
 int main()
 {
@@ -173,7 +184,8 @@ int main()
     sf::View hud = sf::View(window.getView());
 
     sf::Vector2u winSize = window.getSize();
-    sf::RectangleShape hudRect = sf::RectangleShape();
+    sf::RectangleShape hudRect = sf::RectangleShape(sf::Vector2f(0, 670));
+    hudRect.setSize(sf::Vector2f(1270, 50));
     sf::Vector2f mPos_old = window.getView().getCenter();
     sf::Font font;
     if (!font.loadFromFile("testFont.ttf")) {
@@ -216,6 +228,7 @@ int main()
     }
     sf::CircleShape selector(20, 6);
     sf::Vector2f selectorPosition = selector.getOrigin();
+
     selectorPosition.x = selector.getOrigin().x + (selector.getLocalBounds().height / 2);
     selectorPosition.y = selector.getOrigin().y + (selector.getLocalBounds().height / 2);
 
@@ -223,7 +236,18 @@ int main()
     selector.setFillColor(sf::Color(0, 0, 255, 100));
 
     selector.setPosition(sf::Vector2f(grid.offset_to_pixel(sf::Vector2f(99, 99))));
-    
+
+    sf::CircleShape selectedShip(20,6);
+    sf::Vector2f selectedShipPosition = selectedShip.getOrigin();
+
+    selectedShipPosition.x = selectedShip.getOrigin().x + (selectedShip.getLocalBounds().height / 2);
+    selectedShipPosition.y = selectedShip.getOrigin().y + (selectedShip.getLocalBounds().height / 2);
+
+    selectedShip.setOrigin(selectedShipPosition);
+    selectedShip.setFillColor(sf::Color(0, 255, 0, 100));
+
+    selectedShip.setPosition(sf::Vector2f(grid.offset_to_pixel(sf::Vector2f(99,99))));
+
 #pragma endregion
     float delt;
     int clickCount = 0;
@@ -259,8 +283,17 @@ int main()
                 }
                 if (event.mouseButton.button == sf::Mouse::Right)
                 {
-                    // right button down
-                    selector.setPosition(grid.offset_to_pixel(grid.pixel_to_offset(sf::Vector2f(mousePos.x, mousePos.y))));
+                    // right button down, set highlight selector
+                    sf::Vector2f clickPosition = grid.offset_to_pixel(grid.pixel_to_offset(sf::Vector2f(mousePos.x, mousePos.y)));
+                    selector.setPosition(clickPosition);
+                    // check that grid for a ship at the new position
+                    DrawShip* shipHere = GetShipHere(clickPosition, ships);
+                    if(shipHere != NULL)
+                    {
+                        cout << "Ship here \n";
+                        selectedShip.setPosition(clickPosition);
+                        selector.setPosition(sf::Vector2f(grid.offset_to_pixel(sf::Vector2f(99,99))));
+                    }
                 }
                 if (event.mouseButton.button == sf::Mouse::Middle)
                 {
@@ -422,7 +455,8 @@ int main()
         window.draw(testGrid);
         DrawShips(window, grid, ships);
         window.draw(selector);
-        
+        window.draw(selectedShip);
+
         window.setView(hud);
         window.draw(hudRect);
         window.draw(hudText);
@@ -439,4 +473,14 @@ void DrawShips(sf::RenderWindow &window, HexGrid &grid, vector<DrawShip> & shipL
     {
         shipList[i].Draw(window, grid);
     }
+}
+
+DrawShip * GetShipHere(sf::Vector2f pos, vector<DrawShip> & shipList)
+{
+    for(int i = 0; i < shipList.size(); i++)
+    {
+        if(shipList[i].getXpos() == pos.x && shipList[i].getYpos() == pos.y)
+            return &shipList[i];
+    }
+    return NULL;
 }
