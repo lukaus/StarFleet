@@ -142,14 +142,16 @@ public:
 	string getExpansionBays();					// 
 	void addExpansionBay(string);				// 
 
-    int getXpos();
-    void setXpos(int);
+	int getXpos();
+	void setXpos(int);
 
-    int getYpos();
-    void setYpos(int);
+	int getYpos();
+	void setYpos(int);
 
-    Orientation getOrientation();
-    void setOrientation(Orientation);
+	Orientation getOrientation();
+	void setOrientation(Orientation);
+
+	string toString();
 };
 
 #endif
