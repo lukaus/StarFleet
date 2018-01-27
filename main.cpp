@@ -346,7 +346,7 @@ int main(int argc, char *argv[])
         drawShips.push_back(ds);
         std::vector<Ship*> ships;
         ships.push_back(drawShips.at(0).getShip());
-        int message_size;
+       /* int message_size;
         char* testSerialization = SerializeShipArray(ships, message_size);
         cerr << "testSerialization: " << message_size << endl;
 
@@ -358,7 +358,7 @@ int main(int argc, char *argv[])
         deserializedShips = ParseShipMessage(testSerialization, message_size); 
 
         cerr << "Waah";
-        return 0;
+        return 0;*/
     }
     sf::CircleShape selector(20, 6);
     sf::Vector2f selectorPosition = selector.getOrigin();
