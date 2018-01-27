@@ -160,7 +160,7 @@ int main()
 
     sf::Sprite* testSprite = new sf::Sprite();
     sf::Texture testTex;
-    if (testTex.loadFromFile("../testShip.png"/*, sf::IntRect(10, 10, 32, 34)*/))
+    if (testTex.loadFromFile("./images/testShip.png"/*, sf::IntRect(10, 10, 32, 34)*/))
     {
         
         testSprite->setTexture(testTex);
