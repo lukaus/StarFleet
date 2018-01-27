@@ -6,6 +6,7 @@ using std::string;
 
 #ifndef SHIP_H
 #define SHIP_H
+
 enum Maneuverability {
 	CLUMSY,
 	POOR,
