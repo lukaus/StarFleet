@@ -153,6 +153,9 @@ public:
 
     Orientation getOrientation();
     void setOrientation(Orientation);
+
+	string toString();
+
 };
 
 #endif
