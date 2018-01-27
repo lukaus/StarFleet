@@ -173,7 +173,8 @@ int main()
     sf::View hud = sf::View(window.getView());
 
     sf::Vector2u winSize = window.getSize();
-    sf::RectangleShape hudRect = sf::RectangleShape();
+    sf::RectangleShape hudRect = sf::RectangleShape(sf::Vector2f(0, 670));
+    hudRect.setSize(sf::Vector2f(1270, 50));
     sf::Vector2f mPos_old = window.getView().getCenter();
 
     sf::Clock leftDragTimer;
