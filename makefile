@@ -1,7 +1,7 @@
 
 
 all: 
-	g++ -c -std=c++11 -g main.cpp HexGrid.cpp Crewman.cpp Ship.cpp 
+	g++ -c -std=c++11 -g main.cpp HexGrid.cpp Crewman.cpp Ship.cpp Protocol.cpp Projectile.cpp
 	g++ main.o HexGrid.o Crewman.o Ship.o -o starFleet -lsfml-graphics -lsfml-window -lsfml-system -lpthread
 	rm main.o HexGrid.o Crewman.o Ship.o
 
@@ -11,11 +11,11 @@ clean:
 debug:
 
 release:
-	g++ -c main.cpp HexGrid.cpp Crewman.cpp Ship.cpp 
+	g++ -c main.cpp HexGrid.cpp Crewman.cpp Ship.cpp  Protocol.cpp Projectile.cpp
 	g++ main.o HexGrid.o Crewman.o Ship.o -o starFleet -lsfml-graphics -lsfml-window -lsfml-system -lpthread
 
 assembly:
-	g++ -c main.cpp HexGrid.cpp Crewman.cpp Ship.cpp -S
+	g++ -c main.cpp HexGrid.cpp Crewman.cpp Ship.cpp Protocol.cpp Projectile.cpp -S
 	g++ main.o HexGrid.o Crewman.o Ship.o -o starFleet -lsfml-graphics -lsfml-window -lsfml-system -lpthread
 
 server:
