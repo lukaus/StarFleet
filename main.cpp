@@ -13,7 +13,8 @@
 #include "HexGrid.h"
 #include "Ship.h"
 #include "Crewman.h"
-#include <boost/serialization/list.hpp>
+#include "Protocol.h"
+//#include <boost/serialization/list.hpp>
 
 #define DRAG_TIMEOUT 200			// in milliseconds
 #define DOUBLE_CLICK_TIMEOUT 500	// in milliseconds
@@ -186,6 +187,7 @@ public:
 
 void DrawShips(sf::RenderWindow & window, HexGrid &grid, vector<DrawShip> & shipList);
 DrawShip * GetShipHere(sf::Vector2f pos, vector<DrawShip> & shipList);
+
 
 // Thread to check for server sending messages
 void checkerThread()
