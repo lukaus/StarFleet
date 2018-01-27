@@ -13,12 +13,14 @@
 #include "HexGrid.h"
 #include "Ship.h"
 #include "Crewman.h"
-#include "Protocol.h"
+#include "Projectile.h"
 //#include <boost/serialization/list.hpp>
 
 #define DRAG_TIMEOUT 200			// in milliseconds
 #define DOUBLE_CLICK_TIMEOUT 500	// in milliseconds
-#define INPUT_DELAY 0 // milliseconds
+#define INPUT_DELAY 100 // milliseconds
+#define SHIP_INTS (15)
+
 
 using namespace std;
 
@@ -188,6 +190,11 @@ public:
 void DrawShips(sf::RenderWindow & window, HexGrid &grid, vector<DrawShip> & shipList);
 DrawShip * GetShipHere(sf::Vector2f pos, vector<DrawShip> & shipList);
 
+std::vector<Ship*> ParseShipMessage(char * message, int message_size);
+char* SerializeShipArray(std::vector<Ship*> shipArr, int& message_size);
+std::vector<Projectile*> ParseProjectileMessage(char* message);
+char* SerializeProjectileArray(std::vector<Projectile*> projArr);
+
 
 // Thread to check for server sending messages
 void checkerThread()
@@ -300,12 +307,25 @@ int main(int argc, char *argv[])
     sf::Clock doubleLeftClickTimer;
 
     // Game logic
-    vector<DrawShip> ships;
+    vector<DrawShip> drawShips;
     sf::Clock inputDelayTimer;
 
 #pragma region GameLogic
     DrawShip ds;
     Ship* testShip = new Ship();
+
+    testShip->setArmourClass(20);
+    testShip->setTargetLock(10);
+    testShip->setHullPointsMax(100);
+    testShip->setHullPointsCur(53);
+    testShip->setShieldMax(Shield::Fore, 77);
+    testShip->setShieldMax(Shield::Aft, 78);
+    testShip->setShieldMax(Shield::Port, 79);
+    testShip->setShieldMax(Shield::Starboard, 90);
+    testShip->setShieldCur(Shield::Fore, 91);
+    testShip->setShieldCur(Shield::Aft, 92);
+    testShip->setShieldCur(Shield::Port, 93);
+    testShip->setShieldCur(Shield::Starboard, 95);
 
     sf::Sprite* testSprite = new sf::Sprite();
     sf::Texture testTex;
@@ -323,9 +343,21 @@ int main(int argc, char *argv[])
 
         ds.setSprite(testSprite);
         ds.setShip(testShip);
-        ships.push_back(ds);
-      //  char* testSerialization = SerializeShipArray(ships);
-      //  cout << testSerialization << endl;
+        drawShips.push_back(ds);
+        std::vector<Ship*> ships;
+        ships.push_back(drawShips.at(0).getShip());
+        int message_size;
+        char* testSerialization = SerializeShipArray(ships, message_size);
+        cerr << "testSerialization: " << message_size << endl;
+
+        for(int i = 0; i < message_size; i++)
+            printf("%x ", testSerialization[i]);
+        printf("\n");
+
+        std::vector<Ship*> deserializedShips;
+        deserializedShips = ParseShipMessage(testSerialization, message_size); 
+
+        cerr << "Waah";
         return 0;
     }
     sf::CircleShape selector(20, 6);
@@ -395,7 +427,7 @@ int main(int argc, char *argv[])
                     cout << "Click at : " << clickPosition.x << ", " << clickPosition.y << endl;
                     selector.setPosition(grid.offset_to_pixel(clickPosition));
                     // check that grid for a ship at the new position
-                    DrawShip* shipHere = GetShipHere(clickPosition, ships);
+                    DrawShip* shipHere = GetShipHere(clickPosition, drawShips);
                     if(shipHere != NULL)
                     {
                         if(shipSelected == false)
@@ -552,7 +584,7 @@ int main(int argc, char *argv[])
 #pragma region testMovement
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
             {
-                ships[0].Left();
+                drawShips[0].Left();
                 memset(&msg, 0, sizeof(msg));
                 strcpy(msg, "Left");
                 send(clientSd, (char*)&msg, strlen(msg), 0);
@@ -560,21 +592,21 @@ int main(int argc, char *argv[])
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
             {
-                ships[0].Right();
+                drawShips[0].Right();
                 memset(&msg, 0, sizeof(msg));
                 strcpy(msg, "Rigt");
                 send(clientSd, (char*)&msg, strlen(msg), 0);
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
             {
-                ships[0].Forward(grid);
+                drawShips[0].Forward(grid);
                 memset(&msg, 0, sizeof(msg));
                 strcpy(msg, "Up");
                 send(clientSd, (char*)&msg, strlen(msg), 0);
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
             {
-                ships[0].Back(grid);
+                drawShips[0].Back(grid);
                 memset(&msg, 0, sizeof(msg));
                 strcpy(msg, "Down");
                 send(clientSd, (char*)&msg, strlen(msg), 0);
@@ -582,7 +614,7 @@ int main(int argc, char *argv[])
             
             if(shipSelected)
             {
-            selectedShipOverlay.setPosition(sf::Vector2f(grid.offset_to_pixel( ships[clientShip].position() )));     
+            selectedShipOverlay.setPosition(sf::Vector2f(grid.offset_to_pixel( drawShips[clientShip].position() )));     
             }
         }
 
@@ -592,7 +624,7 @@ int main(int argc, char *argv[])
         
         window.setView(camera);
         window.draw(testGrid);
-        DrawShips(window, grid, ships);
+        DrawShips(window, grid, drawShips);
         window.draw(selector);
         window.draw(selectedShipOverlay);
 
@@ -624,4 +656,161 @@ DrawShip * GetShipHere(sf::Vector2f pos, vector<DrawShip> & shipList)
             return &shipList[i];
     }
     return NULL;
+}
+
+std::vector<Ship*> ParseShipMessage(char * message, int message_size)
+{
+    std::vector<Ship*> shipArray;
+    int message_index = 0;
+    char message_type = 'Z';
+    memcpy(&message_type, &message[message_index], sizeof(char));
+    message_index += sizeof(char);
+
+    int message_length = 0;
+    memcpy(&message_length, &message[message_index], sizeof(int));
+    message_index += sizeof(int);
+
+    int numberOfShips = 0;
+    memcpy(&numberOfShips, &message[message_index], sizeof(int));
+    message_index += sizeof(int);
+
+    for(int i = 0; i < numberOfShips; i++)
+    {
+        Ship* thisShip = new Ship();
+
+        int val;
+        memcpy(&val, &message[message_index], sizeof(int));
+        message_index += sizeof(int);
+        thisShip->setXpos(val);
+
+        memcpy(&val, &message[message_index], sizeof(int));
+        message_index += sizeof(int);
+        thisShip->setYpos(val);
+
+        memcpy(&val, &message[message_index], sizeof(int));
+        message_index += sizeof(int);
+        thisShip->setHullPointsCur(val);
+
+        memcpy(&val, &message[message_index], sizeof(int));
+        message_index += sizeof(int);
+        thisShip->setHullPointsMax(val);
+
+        memcpy(&val, &message[message_index], sizeof(int));
+        message_index += sizeof(int);
+        thisShip->setTargetLock(val);
+
+        memcpy(&val, &message[message_index], sizeof(int));
+        message_index += sizeof(int);
+        thisShip->setArmourClass(val);
+
+        memcpy(&val, &message[message_index], sizeof(int));
+        message_index += sizeof(int);
+       // thisShip->setXpos(val); // attack bonus
+
+        for(int j = 0; j < 4; j++)
+        {
+            memcpy(&val, &message[message_index], sizeof(int));
+            message_index += sizeof(int);
+            thisShip->setShieldCur((Shield)j, val);
+
+            memcpy(&val, &message[message_index], sizeof(int));
+            message_index += sizeof(int);
+            thisShip->setShieldMax((Shield)j, val);
+        }
+        cerr << thisShip->toString() << endl;
+        cerr << endl << endl << endl << endl;
+    }
+
+    cerr << "Message len: " << message_length << endl;
+
+    return shipArray;
+}
+std::vector<Projectile*> ParseProjectileMessage(char* message)
+{
+
+}
+
+char * SerializeShipArray(std::vector<Ship*> shipArr, int &message_size)
+{
+    message_size = sizeof(char) + sizeof(int) + sizeof(int) + (shipArr.size() * (sizeof(int) * SHIP_INTS));
+    //cerr << "message_size: " << message_size << endl;
+    char* message = new char[message_size];
+
+    char message_type = 'S';
+    int message_index = 0;
+    int numberOfShips = shipArr.size();
+
+    memcpy(&message[message_index], &message_type, sizeof(char));
+    message_index += sizeof(char); // skip to next byte
+        
+    memcpy(&message[message_index], &message_size, sizeof(int));
+    message_index += sizeof(int); // skip to next byte
+    
+    memcpy(&message[message_index], &numberOfShips, sizeof(int));
+    message_index += sizeof(int); // skip to next byte
+        
+
+    // prepare message
+    for(int i = 0; i < shipArr.size(); i++)
+    {
+        cout << "i: " << i << endl;        
+        int val = shipArr[i]->getXpos();
+        memcpy(&message[message_index], &val, sizeof(int));
+        message_index += sizeof(int);
+        
+        //cout << message_index << endl;
+        // 16:   y pos
+        val = shipArr[i]->getYpos();
+        memcpy(&message[message_index], &val, sizeof(int));
+        message_index += sizeof(int);
+        
+        //cout << message_index << endl;
+        // 16:   HP (cur)
+        val = shipArr[i]->getHullPointsCur();
+        memcpy(&message[message_index], &val, sizeof(int));
+        message_index += sizeof(int);
+        //cout << message_index << endl;
+        // 16:   HP (tot)
+        
+        val = shipArr[i]->getHullPointsMax();
+        memcpy(&message[message_index], &val, sizeof(int));
+        message_index += sizeof(int);
+        //cout << message_index << endl;
+        // 16:   TL
+        val = shipArr[i]->getTargetLock();
+        memcpy(&message[message_index], &val, sizeof(int));
+        message_index += sizeof(int);
+        //cout << message_index << endl;
+        // 16:   AC
+        val = shipArr[i]->getArmourClass();
+        memcpy(&message[message_index], &val, sizeof(int));
+        message_index += sizeof(int);
+        //cout << message_index << endl;
+        // 16:   attack bonus
+        val = (int) 0;
+        memcpy(&message[message_index], &val, sizeof(int));
+        message_index += sizeof(int);
+        // 16*4: current shield values
+        //cout << message_index << endl;
+        for(int j = 0; j < 4; j++)
+        {
+            val = shipArr[i]->getShieldCur((Shield)j);
+            memcpy(&message[message_index], &val, sizeof(int));
+            message_index += sizeof(int);
+
+            val = shipArr[i]->getShieldMax((Shield)j);
+            memcpy(&message[message_index], &val, sizeof(int));
+            message_index += sizeof(int);
+        }
+    }
+    return message;
+}
+
+char* SerializeProjectileArray(std::vector<Projectile*> projArr)
+{
+    char* message;
+
+    message = new char [1];
+
+    return message;
 }
