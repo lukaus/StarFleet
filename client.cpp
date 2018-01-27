@@ -70,10 +70,11 @@ int main(int argc, char *argv[])
 
     if(status < 0)
     {
-        cout << "Error connecting to socket!" << endl;
+        cout << "Error connecting to server!" << endl;
+        exit(0);
     }
-
-    cout << "Connected to the server!" << endl;
+    else
+    	cout << "Connected to the server!" << endl;
 
     // Spawn the thread to check for incoming messages from the server
     thread t1(checkerThread);

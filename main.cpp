@@ -2,6 +2,14 @@
 #include <iostream>
 #include <string>
 #include <list>
+#include <stdio.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <string.h>
+#include <netdb.h>
+#include <thread>
 #include "HexGrid.h"
 #include "Ship.h"
 #include "Crewman.h"
@@ -10,6 +18,9 @@
 #define DOUBLE_CLICK_TIMEOUT 500	// in milliseconds
 
 using namespace std;
+
+// Global variable for the client socket descripter...needed for thread
+int clientSd;
 
 class DrawShip
 {
@@ -173,8 +184,75 @@ public:
 void DrawShips(sf::RenderWindow & window, HexGrid &grid, vector<DrawShip> & shipList);
 DrawShip * GetShipHere(sf::Vector2f pos, vector<DrawShip> & shipList);
 
-int main()
+// Thread to check for server sending messages
+void checkerThread()
 {
+    // Buffer for the message incoming
+    char receivedMessage[1500];
+    while (1)
+    {
+        // Clear buffer
+        memset(receivedMessage, 0, sizeof(receivedMessage));
+
+        // Try to receive a message from the server
+        recv(clientSd, (char*)&receivedMessage, sizeof(receivedMessage), 0);
+
+        if(!strcmp(receivedMessage, "exit"))
+        {
+            cout << "Server has quit the session" << endl;
+            exit(0);
+        }
+
+        // Print for the client number and the message sent
+        cout << "Client " << receivedMessage[0] << ": ";
+        for(int i = 1; receivedMessage[i] != '\0'; i++)
+        {
+            cout << receivedMessage[i];
+        }
+        cout << endl;
+    }
+}
+
+int main(int argc, char *argv[])
+{
+    // Client-server stuff
+
+    // For the messages to the server upon key presses
+    char msg[5]; 
+
+    // Usage
+    if(argc != 3)
+    {
+        cerr << "Usage: ip_address port" << endl; exit(0); 
+    } 
+
+    // Gets the IP and Port
+    char *serverIp = argv[1]; 
+    int port = atoi(argv[2]);
+
+    // Setup a socket and connection tools 
+    struct hostent* host = gethostbyname(serverIp); 
+    sockaddr_in sendSockAddr;   
+    bzero((char*)&sendSockAddr, sizeof(sendSockAddr)); 
+    sendSockAddr.sin_family = AF_INET; 
+    sendSockAddr.sin_addr.s_addr = inet_addr(inet_ntoa(*(struct in_addr*)*host->h_addr_list));
+    sendSockAddr.sin_port = htons(port);
+    clientSd = socket(AF_INET, SOCK_STREAM, 0);
+
+    // Try to connect
+    int status = connect(clientSd, (sockaddr*) &sendSockAddr, sizeof(sendSockAddr));
+
+    if(status < 0)
+    {
+        cout << "Error connecting to server!" << endl;
+        exit(0);
+    }
+    else
+        cout << "Connected to the server!" << endl;
+
+    // Spawn the thread to check for incoming messages from the server
+    thread t1(checkerThread);
+
     // window logic
     sf::RenderWindow window(sf::VideoMode(1270, 720), "Starfinder Commander");
     window.setFramerateLimit(60);
@@ -435,18 +513,30 @@ int main()
                 if (event.key.code == sf::Keyboard::Left)
                 {
                     ships[0].Left();
+                    memset(&msg, 0, sizeof(msg));
+                    strcpy(msg, "Left");
+                    send(clientSd, (char*)&msg, strlen(msg), 0);
                 }
                 if (event.key.code == sf::Keyboard::Right)
                 {
                     ships[0].Right();
+                    memset(&msg, 0, sizeof(msg));
+                    strcpy(msg, "Right");
+                    send(clientSd, (char*)&msg, strlen(msg), 0);
                 }
                 if (event.key.code == sf::Keyboard::Up)
                 {
                     ships[0].Forward(grid);
+                    memset(&msg, 0, sizeof(msg));
+                    strcpy(msg, "Up");
+                    send(clientSd, (char*)&msg, strlen(msg), 0);
                 }
                 if (event.key.code == sf::Keyboard::Down)
                 {
                     ships[0].Back(grid);
+                    memset(&msg, 0, sizeof(msg));
+                    strcpy(msg, "Down");
+                    send(clientSd, (char*)&msg, strlen(msg), 0);
                 }
                 if (event.key.code == sf::Keyboard::R)
                 {
@@ -497,6 +587,8 @@ int main()
         window.setView(camera);
 	}
 
+    t1.join();
+    close(clientSd);
 	return 0;
 }
 
