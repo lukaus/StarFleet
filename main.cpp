@@ -324,7 +324,9 @@ int main(int argc, char *argv[])
         ds.setSprite(testSprite);
         ds.setShip(testShip);
         ships.push_back(ds);
-
+        char* testSerialization = SerializeShipArray(ships);
+        cout << testSerialization << endl;
+        return 0;
     }
     sf::CircleShape selector(20, 6);
     sf::Vector2f selectorPosition = selector.getOrigin();

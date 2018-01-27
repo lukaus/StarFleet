@@ -74,13 +74,22 @@ int* 	Ship::getModifiers()
     return modifiers;
 }
 
-int 	Ship::getHullPointsMax()
+int     Ship::getHullPointsMax()
 {
     return hullPointsMax;
 }
-void 	Ship::setHullPointsMax(int n)
+void    Ship::setHullPointsMax(int n)
 {
     hullPointsMax = n;
+}
+
+int     Ship::getHullPointsCur()
+{
+    return hullPointsCur;
+}
+void    Ship::setHullPointsCur(int n)
+{
+    hullPointsCur = n;
 }
 
 int 	Ship::getPowerCoreTotal()
@@ -238,6 +247,29 @@ void        Ship::setOrientation(Orientation o)
 {
     orientation = o;
 }
+
+int         Ship::getShieldMax(Shield sh)
+{
+    return shieldTot[sh];
+}
+
+void        Ship::setShieldMax(Shield sh, int val)
+{
+    shieldTot[sh] = val;
+}
+
+int         Ship::getShieldCur(Shield sh)
+{
+    return shieldCur[sh];
+}
+
+void        Ship::setShieldCur(Shield sh, int val)
+{
+    shieldCur[sh] = val;
+}
+
+
+
 string    Ship::toString()
 {
     string manu;

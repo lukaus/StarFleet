@@ -38,6 +38,14 @@ enum Station : int
 	Engineering
 };
 
+enum Shield : int
+{
+	Fore,
+	Aft,
+	Port,
+	Starboard
+};
+
 
 class Ship
 {
@@ -105,6 +113,9 @@ public:
 
 	int getHullPointsMax();						// 
 	void setHullPointsMax(int);					// 
+
+	int getHullPointsCur();						// 
+	void setHullPointsCur(int);					// 
 		
 	int getPowerCoreTotal();					// 
 	void setPowerCoreTotal(int);				// 
@@ -153,6 +164,12 @@ public:
 
     Orientation getOrientation();
     void setOrientation(Orientation);
+
+    int getShieldCur(Shield);
+    void setShieldCur(Shield, int);
+
+    int getShieldMax(Shield);
+    void setShieldMax(Shield, int);
 
 	string toString();
 
