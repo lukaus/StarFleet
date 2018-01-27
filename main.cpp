@@ -127,10 +127,8 @@ public:
             break;
         }
         sf::Vector3f cubial;
-        //cubial = grid.offset_to_cube(sf::Vector2f(this->ship->getXpos(), this->ship->getYpos()));
         cout << "( " << cubial.x << ", " << cubial.y << ", " << cubial.z << ") \n";
         cout << "( " << this->ship->getXpos() << ", " << this->ship->getYpos() << " )\n";
-        
     }
     void Back(HexGrid grid)
     {
@@ -172,10 +170,10 @@ int main()
     bool potentialDoubleLeftClick = false;
 
     sf::View camera = window.getView();
-    sf::View hud = sf::View();
+    sf::View hud = sf::View(window.getView());
 
     sf::Vector2u winSize = window.getSize();
-    sf::RectangleShape hudRect = sf::RectangleShape(sf::Vector2f(winSize.x, 50));
+    sf::RectangleShape hudRect = sf::RectangleShape();
     sf::Vector2f mPos_old = window.getView().getCenter();
 
     sf::Clock leftDragTimer;
@@ -223,12 +221,12 @@ int main()
     bool rotated = false;
     sf::Vector2f mousePos;
 
+    winSize = window.getSize();
+    //hudRect.setPosition(sf::Vector2f(50, 50));
+    hudRect.setSize(sf::Vector2f(30, 50));
+    sf::Event event;
     while (window.isOpen())
     {
-        winSize = window.getSize();
-        hudRect.setPosition(sf::Vector2f(50, winSize.y));
-        hudRect.setSize(sf::Vector2f(winSize.x, 50));
-        sf::Event event;
         while (window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
@@ -265,7 +263,6 @@ int main()
                 mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
                 if (event.mouseButton.button == sf::Mouse::Left)
                 {
-
                     // left button up
                     leftMouseDragging = false;
                     if (leftDragTimer.getElapsedTime().asMilliseconds() < DRAG_TIMEOUT)
@@ -275,41 +272,20 @@ int main()
 
                         if (clickCount == 1)
                         {
-                            //  cout << doubleLeftClickTimer.getElapsedTime().asMilliseconds() << " : " << clickCount << " : single left click\n";
                             doubleLeftClickTimer.restart();
                         }
 
                         if (clickCount > 1 && doubleLeftClickTimer.getElapsedTime().asMilliseconds() < DOUBLE_CLICK_TIMEOUT)
                         {
-                            //  cout << doubleLeftClickTimer.getElapsedTime().asMilliseconds() << " : " << clickCount << " : double left click\n";
                             clickCount = 0;
                             doubleLeftClickTimer.restart();
                         }
                         else if (clickCount > 2 || doubleLeftClickTimer.getElapsedTime().asMilliseconds() > DOUBLE_CLICK_TIMEOUT)
                         {
                             clickCount = 0;
-                            //  cout << doubleLeftClickTimer.getElapsedTime().asMilliseconds() << " : " << clickCount << " : single left click\n";
                             doubleLeftClickTimer.restart();
 
                         }
-                        /*
-                        if (potentialDoubleLeftClick == false)
-                        {
-                            potentialDoubleLeftClick = true;
-                        }
-                        else
-                        {
-                            if (doubleLeftClickTimer.getElapsedTime().asMilliseconds() > DOUBLE_CLICK_TIMEOUT)
-                            {
-                                doubleLeftClickTimer.restart();
-                            }
-                            else
-                            {
-                                cout << "double left click\n";
-                            }
-                            potentialDoubleLeftClick = false;
-
-                        }*/
                     }
                 }
 
@@ -380,8 +356,6 @@ int main()
 #pragma region Selection
 
 
-
-
 #pragma endregion
 
 #pragma region testMovement
@@ -419,30 +393,30 @@ int main()
                 }
                 break;
 #pragma endregion
-
-
             }
-
-
             if (event.type == sf::Event::Resized)
             {
                 // update the view to the new size of the window
                 sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
                 camera = sf::View(visibleArea);
+                hud = sf::View(visibleArea);
+                hudRect.setSize(sf::Vector2f(event.size.width-20, 50));
+                hudRect.setPosition(sf::Vector2f(10, event.size.height - 100));
+
                 window.setView(sf::View(visibleArea));
             }
-
         }
-        // Resize view to allow menus
-      /*  sf::View curView = window.getView();
-        curView.setViewport(sf::FloatRect(0, 0, 0.5f, 1));
-        window.setView(curView);*/
+
 		window.clear();
+        
+        window.setView(camera);
         window.draw(testGrid);
         DrawShips(window, grid, ships);
         window.draw(selector);
+        
         window.setView(hud);
         window.draw(hudRect);
+        
         window.display();
         window.setView(camera);
 	}

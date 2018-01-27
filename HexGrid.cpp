@@ -1,6 +1,5 @@
 #include "HexGrid.h"
 
-
 sf::VertexArray HexGrid::GenerateHexGrid(sf::Vector2f startCoord, int r, int c, float s)
 {
 	sf::VertexArray gridVertices;
@@ -45,7 +44,6 @@ sf::VertexArray HexGrid::GenerateHexGrid(sf::Vector2f startCoord, int r, int c, 
 
 sf::VertexArray HexGrid::GenerateHex(sf::Vector2f center, float size, bool offset = false)
 {
-
 	sf::VertexArray hexVertices(primitiveType, 7);
 	
 	for (int i = 0; i < 7; i++)
@@ -55,19 +53,14 @@ sf::VertexArray HexGrid::GenerateHex(sf::Vector2f center, float size, bool offse
 
 		if (i == 0 || i == 6)
 			hexVertices[i].color = sf::Color::Black;
-
 	}
-
 	return hexVertices;
 }
-
-
 
 sf::VertexArray HexGrid::GenerateHexGrid()
 {	
 	return GenerateHexGrid(origin, rows, columns, cellSize);
 }
-
 
 sf::Vector2f HexGrid::hexCorner(sf::Vertex center, float size, int i)
 {
