@@ -196,11 +196,11 @@ int main()
     }
     sf::Text hudText;;
     hudText.setFont(font);
-    hudText.setPosition(0,0);
+    hudText.setPosition(0,-60);
     hudText.setString("Test Hud");
-    hudText.setCharacterSize(150);
+    hudText.setCharacterSize(100);
     hudText.setColor(sf::Color::White);
-    hudText.setStyle(sf::Text::Bold | sf::Text::Underlined);
+    hudText.setStyle(sf::Text::Bold);
     sf::Clock leftDragTimer;
     sf::Clock doubleLeftClickTimer;
 
