@@ -16,6 +16,7 @@
 
 #define DRAG_TIMEOUT 200			// in milliseconds
 #define DOUBLE_CLICK_TIMEOUT 500	// in milliseconds
+#define INPUT_DELAY 100 // milliseconds
 
 using namespace std;
 
@@ -289,13 +290,14 @@ int main(int argc, char *argv[])
     string mystring = ("~MYSHIP~\nSHIELD:\n\tF:\n\tB:\n\tL:\n\tR:\nHEALTH:\nSPEED:\nPOWER:\n\tCURR:\n\tAVAIL:\n\t");
     hudText.setString(mystring);
     hudText.setCharacterSize(35);
-    hudText.setColor(sf::Color::White);
+    hudText.setFillColor(sf::Color(255, 255, 255, 255));
     hudText.setStyle(sf::Text::Bold);
     sf::Clock leftDragTimer;
     sf::Clock doubleLeftClickTimer;
 
     // Game logic
     vector<DrawShip> ships;
+    sf::Clock inputDelayTimer;
 
 #pragma region GameLogic
     DrawShip ds;
@@ -352,8 +354,13 @@ int main(int argc, char *argv[])
     //hudRect.setPosition(sf::Vector2f(50, 50));
     //hudRect.setSize(sf::Vector2f(30, 50));
     sf::Event event;
+    inputDelayTimer.restart();
     while (window.isOpen())
     {
+       // if(inputDelayTimer.getElapsedTime().asMilliseconds() < INPUT_DELAY)
+       //     continue;
+       // inputDelayTimer.restart();
+        
         while (window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
@@ -501,44 +508,7 @@ int main(int argc, char *argv[])
                 }
 
                 break;
-#pragma endregion
-#pragma region Selection
-
-
-#pragma endregion
-
-#pragma region testMovement
-
             case sf::Event::KeyPressed:
-                if (event.key.code == sf::Keyboard::Left)
-                {
-                    ships[0].Left();
-                    memset(&msg, 0, sizeof(msg));
-                    strcpy(msg, "Left");
-                    send(clientSd, (char*)&msg, strlen(msg), 0);
-                }
-                if (event.key.code == sf::Keyboard::Right)
-                {
-                    ships[0].Right();
-                    memset(&msg, 0, sizeof(msg));
-                    strcpy(msg, "Right");
-                    send(clientSd, (char*)&msg, strlen(msg), 0);
-                }
-                if (event.key.code == sf::Keyboard::Up)
-                {
-                    ships[0].Forward(grid);
-                    memset(&msg, 0, sizeof(msg));
-                    strcpy(msg, "Up");
-                    send(clientSd, (char*)&msg, strlen(msg), 0);
-                }
-                if (event.key.code == sf::Keyboard::Down)
-                {
-                    ships[0].Back(grid);
-                    memset(&msg, 0, sizeof(msg));
-                    strcpy(msg, "Down");
-                    send(clientSd, (char*)&msg, strlen(msg), 0);
-                }
-                if (event.key.code == sf::Keyboard::R)
                 {
                     if (rotated)
                     {
@@ -551,13 +521,7 @@ int main(int argc, char *argv[])
                     window.setView(camera);
                     rotated = !rotated;
                 }
-                if(shipSelected)
-                {
-                    selectedShipOverlay.setPosition(sf::Vector2f(grid.offset_to_pixel( ships[clientShip].position() )));     
-                }
-
                 break;
-#pragma endregion
             }
             if (event.type == sf::Event::Resized)
             {
@@ -570,9 +534,54 @@ int main(int argc, char *argv[])
 
                 window.setView(sf::View(visibleArea));
             }
+#pragma endregion
+#pragma region Selection
+
+#pragma endregion
+            if(inputDelayTimer.getElapsedTime().asMilliseconds() < INPUT_DELAY)
+                continue;
+            inputDelayTimer.restart();
+        
+#pragma region testMovement
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+            {
+                ships[0].Left();
+                memset(&msg, 0, sizeof(msg));
+                strcpy(msg, "Left");
+                send(clientSd, (char*)&msg, strlen(msg), 0);
+
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+            {
+                ships[0].Right();
+                memset(&msg, 0, sizeof(msg));
+                strcpy(msg, "Right");
+                send(clientSd, (char*)&msg, strlen(msg), 0);
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+            {
+                ships[0].Forward(grid);
+                memset(&msg, 0, sizeof(msg));
+                strcpy(msg, "Up");
+                send(clientSd, (char*)&msg, strlen(msg), 0);
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+            {
+                ships[0].Back(grid);
+                memset(&msg, 0, sizeof(msg));
+                strcpy(msg, "Down");
+                send(clientSd, (char*)&msg, strlen(msg), 0);
+            }
+            
+            if(shipSelected)
+            {
+            selectedShipOverlay.setPosition(sf::Vector2f(grid.offset_to_pixel( ships[clientShip].position() )));     
+            }
         }
 
-		window.clear();
+#pragma endregion
+
+        window.clear();
         
         window.setView(camera);
         window.draw(testGrid);
