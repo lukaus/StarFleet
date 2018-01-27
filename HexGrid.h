@@ -43,9 +43,5 @@ private:
 
     sf::Vector2f hex_round(sf::Vector2f to_round);
     sf::Vector3f cube_round(sf::Vector3f to_round);
-
-
-
-
 };
 #endif // !HEXGRID_H

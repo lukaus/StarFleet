@@ -86,6 +86,9 @@ private:
 
 public:
 
+	Ship();
+	Ship(int sp, Maneuverability m, int ac, int tl, int dm, int crit, int pcc, int hp, int * shield);
+
 	int getCost();								// 
 	void setCost(int);							// 
 	int calculateCost(float);					// 
