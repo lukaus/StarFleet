@@ -172,7 +172,10 @@ int main()
     bool potentialDoubleLeftClick = false;
 
     sf::View camera = window.getView();
+    sf::View hud = sf::View();
 
+    sf::Vector2u winSize = window.getSize();
+    sf::RectangleShape hudRect = sf::RectangleShape(sf::Vector2f(winSize.x, 50));
     sf::Vector2f mPos_old = window.getView().getCenter();
 
     sf::Clock leftDragTimer;
@@ -213,7 +216,6 @@ int main()
     selector.setFillColor(sf::Color(0, 0, 255, 100));
 
     selector.setPosition(sf::Vector2f(grid.offset_to_pixel(sf::Vector2f(99, 99))));
-
     
 #pragma endregion
     float delt;
@@ -223,6 +225,9 @@ int main()
 
     while (window.isOpen())
     {
+        winSize = window.getSize();
+        hudRect.setPosition(sf::Vector2f(50, winSize.y));
+        hudRect.setSize(sf::Vector2f(winSize.x, 50));
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -432,12 +437,14 @@ int main()
       /*  sf::View curView = window.getView();
         curView.setViewport(sf::FloatRect(0, 0, 0.5f, 1));
         window.setView(curView);*/
-
 		window.clear();
         window.draw(testGrid);
         DrawShips(window, grid, ships);
         window.draw(selector);
-		window.display();
+        window.setView(hud);
+        window.draw(hudRect);
+        window.display();
+        window.setView(camera);
 	}
 
 	return 0;
