@@ -24,6 +24,11 @@ public:
         ship = sh;
     }
 
+    Ship * getShip()
+    {
+        return ship;
+    }
+
     int getXpos()
     {
         return this->ship->getXpos();
@@ -32,6 +37,11 @@ public:
     int getYpos()
     {
         return this->ship->getYpos();
+    }
+
+    sf::Vector2f position()
+    {
+        return sf::Vector2f((float)this->ship->getXpos(), (float)this->ship->getYpos());
     }
     
     void setSprite(sf::Sprite* sp)
@@ -184,21 +194,22 @@ int main()
     sf::View hud = sf::View(window.getView());
 
     sf::Vector2u winSize = window.getSize();
-    sf::RectangleShape hudRect = sf::RectangleShape(sf::Vector2f(0, 670));
-    hudRect.setSize(sf::Vector2f(1270, 50));
+    //sf::RectangleShape hudRect = sf::RectangleShape(sf::Vector2f(0, 670));
+    //hudRect.setSize(sf::Vector2f(1270, 50));
     sf::Vector2f mPos_old = window.getView().getCenter();
     
     bool shipSelected;
+    Ship * selectedShip = NULL;
     int clientShip = 0; // index for this client's DrawShip in ships vector
 
     sf::Font font;
     if (!font.loadFromFile("testFont.ttf")) {
     }
-    sf::Text hudText;;
+    sf::Text hudText;
     hudText.setFont(font);
-    hudText.setPosition(0,-60);
-    hudText.setString("Test Hud");
-    hudText.setCharacterSize(100);
+    hudText.setPosition(0,-15);
+    hudText.setString("~MY SHIP~\nSHIELD:\n\tF:\n\tB:\n\tL:\n\tR:\nHEALTH:\nSPEED:\nPOWER:\n\tCURR:\n\tAVAIL:\n\t");
+    hudText.setCharacterSize(35);
     hudText.setColor(sf::Color::White);
     hudText.setStyle(sf::Text::Bold);
     sf::Clock leftDragTimer;
@@ -241,16 +252,16 @@ int main()
 
     selector.setPosition(sf::Vector2f(grid.offset_to_pixel(sf::Vector2f(99, 99))));
 
-    sf::CircleShape selectedShip(20,6);
-    sf::Vector2f selectedShipPosition = selectedShip.getOrigin();
+    sf::CircleShape selectedShipOverlay(20,6);
+    sf::Vector2f selectedShipPosition = selectedShipOverlay.getOrigin();
 
-    selectedShipPosition.x = selectedShip.getOrigin().x + (selectedShip.getLocalBounds().height / 2);
-    selectedShipPosition.y = selectedShip.getOrigin().y + (selectedShip.getLocalBounds().height / 2);
+    selectedShipPosition.x = selectedShipOverlay.getOrigin().x + (selectedShipOverlay.getLocalBounds().height / 2);
+    selectedShipPosition.y = selectedShipOverlay.getOrigin().y + (selectedShipOverlay.getLocalBounds().height / 2);
 
-    selectedShip.setOrigin(selectedShipPosition);
-    selectedShip.setFillColor(sf::Color(0, 255, 0, 100));
+    selectedShipOverlay.setOrigin(selectedShipPosition);
+    selectedShipOverlay.setFillColor(sf::Color(255, 255, 0, 50));
 
-    selectedShip.setPosition(sf::Vector2f(grid.offset_to_pixel(sf::Vector2f(99,99))));
+    selectedShipOverlay.setPosition(sf::Vector2f(grid.offset_to_pixel(sf::Vector2f(99,99))));
 
 #pragma endregion
     float delt;
@@ -260,7 +271,7 @@ int main()
 
     winSize = window.getSize();
     //hudRect.setPosition(sf::Vector2f(50, 50));
-    hudRect.setSize(sf::Vector2f(30, 50));
+    //hudRect.setSize(sf::Vector2f(30, 50));
     sf::Event event;
     while (window.isOpen())
     {
@@ -288,15 +299,28 @@ int main()
                 if (event.mouseButton.button == sf::Mouse::Right)
                 {
                     // right button down, set highlight selector
-                    sf::Vector2f clickPosition = grid.offset_to_pixel(grid.pixel_to_offset(sf::Vector2f(mousePos.x, mousePos.y)));
-                    selector.setPosition(clickPosition);
+                    sf::Vector2f clickPosition = grid.pixel_to_offset(sf::Vector2f(mousePos.x, mousePos.y));
+                    cout << "Click at : " << clickPosition.x << ", " << clickPosition.y << endl;
+                    selector.setPosition(grid.offset_to_pixel(clickPosition));
                     // check that grid for a ship at the new position
                     DrawShip* shipHere = GetShipHere(clickPosition, ships);
                     if(shipHere != NULL)
                     {
-                        cout << "Ship here \n";
-                        selectedShip.setPosition(clickPosition);
-                        selector.setPosition(sf::Vector2f(grid.offset_to_pixel(sf::Vector2f(99,99))));
+                        if(shipSelected == false)
+                        {
+                            cout << "Ship here: \n" << shipHere->getShip()->toString();
+                            selectedShipOverlay.setPosition(grid.offset_to_pixel(clickPosition));
+                            selector.setPosition(sf::Vector2f(grid.offset_to_pixel(sf::Vector2f(99,99))));
+                            shipSelected = true;
+                            selectedShip = shipHere->getShip();
+                        }
+                        else
+                        {
+                            cout << "Deselecting ship\n";
+                            shipSelected = false;
+                            selectedShip = NULL;
+                            selectedShipOverlay.setPosition(grid.offset_to_pixel(sf::Vector2f(99,99)));
+                        }
                     }
                 }
                 if (event.mouseButton.button == sf::Mouse::Middle)
@@ -432,11 +456,15 @@ int main()
                     else
                     {
                         camera.rotate(30.0);
-
                     }
                     window.setView(camera);
                     rotated = !rotated;
                 }
+                if(shipSelected)
+                {
+                    selectedShipOverlay.setPosition(sf::Vector2f(grid.offset_to_pixel( ships[clientShip].position() )));     
+                }
+
                 break;
 #pragma endregion
             }
@@ -446,8 +474,8 @@ int main()
                 sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
                 camera = sf::View(visibleArea);
                 hud = sf::View(visibleArea);
-                hudRect.setSize(sf::Vector2f(event.size.width-20, 50));
-                hudRect.setPosition(sf::Vector2f(10, event.size.height - 100));
+                //hudRect.setSize(sf::Vector2f(event.size.width-20, 50));
+                //hudRect.setPosition(sf::Vector2f(10, event.size.height - 100));
 
                 window.setView(sf::View(visibleArea));
             }
@@ -459,10 +487,10 @@ int main()
         window.draw(testGrid);
         DrawShips(window, grid, ships);
         window.draw(selector);
-        window.draw(selectedShip);
+        window.draw(selectedShipOverlay);
 
         window.setView(hud);
-        window.draw(hudRect);
+        //window.draw(hudRect);
         window.draw(hudText);
         window.display();
         window.setView(camera);
