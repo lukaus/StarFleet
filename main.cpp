@@ -359,8 +359,7 @@ int main(int argc, char *argv[])
         //printf("\n");
 
        // cerr << "testSerialization: " << message_size << endl;
-        std::vector<Ship*> deserializedShips;
-        deserializedShips = Protocol::ParseShipMessage(clientSd, testSerialization, message_size); 
+        std::vector<Ship*> deserializedShips = Protocol::ParseShipMessage(clientSd, testSerialization, message_size); 
         cout << deserializedShips[0]->toString() << endl;
 
         cerr << "Waah";
