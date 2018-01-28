@@ -10,7 +10,7 @@ using namespace std;
 namespace Protocol
 {
 
-    std::vector<Ship*> ParseShipMessage(char * message, int message_size);
+    std::vector<Ship*> ParseShipMessage(int clientID, char * message, int message_size);
     char* CrunchetizeMeCapn(std::vector<Ship*> shipArr, int& message_size);
     std::vector<Projectile*> ParseProjectileMessage(char* message);
     char* SerializeProjectileArray(std::vector<Projectile*> projArr);

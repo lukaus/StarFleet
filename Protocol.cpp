@@ -11,7 +11,7 @@ using namespace std;
 
 #define SHIP_INTS (15)
 
-std::vector<Ship*> Protocol::ParseShipMessage(char * message, int message_size)
+std::vector<Ship*> Protocol::ParseShipMessage(int clientID, char * message, int message_size)
 {
     std::vector<Ship*> shipArray;
     int message_index = 0;
@@ -70,11 +70,11 @@ std::vector<Ship*> Protocol::ParseShipMessage(char * message, int message_size)
             message_index += sizeof(int);
             thisShip->setShieldMax((Shield)j, val);
         }
-        cerr << thisShip->toString() << endl;
-        cerr << endl << endl << endl << endl;
+      //  cerr << thisShip->toString() << endl;
+      //  cerr << endl << endl << endl << endl;
     }
 
-    cerr << "Message len: " << message_length << endl;
+    //cerr << "Message len: " << message_length << endl;
 
     return shipArray;
 }
@@ -102,7 +102,7 @@ char * Protocol::CrunchetizeMeCapn(std::vector<Ship*> shipArr, int &message_size
     
     memcpy(&message[message_index], &numberOfShips, sizeof(int));
     message_index += sizeof(int); // skip to next byte
-        
+    
 
     // prepare message
     for(int i = 0; i < shipArr.size(); i++)

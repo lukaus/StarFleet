@@ -19,5 +19,5 @@ assembly:
 	g++ main.o HexGrid.o Crewman.o Ship.o Protocol.o Projectile.o -o starFleet -lsfml-graphics -lsfml-window -lsfml-system -lpthread
 
 server:
-	g++ -c server.cpp Ship.cpp Protocol.cpp
+	g++ -c -std=c++11 -g server.cpp Ship.cpp Protocol.cpp
 	g++ server.o Ship.o Protocol.o -o server

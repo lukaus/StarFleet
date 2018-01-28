@@ -196,6 +196,7 @@ void checkerThread()
 {
     // Buffer for the message incoming
     char receivedMessage[1500];
+    //char * receivedMessage;
     while (1)
     {
         // Clear buffer
@@ -210,13 +211,20 @@ void checkerThread()
             exit(0);
         }
 
-        // Print for the client number and the message sent
+        int size = 0;
+        for(int i = 0; receivedMessage[i] != '\0'; i++)
+            size +=1;
+
+        std::vector<Ship*> resultShips = Protocol::ParseShipMessage(clientSd, receivedMessage, size);
+        cerr << "Size: " << size << endl;
+        cerr << "We got " << resultShips.size() << " ships breh\n"; 
+       /* // Print for the client number and the message sent
         cout << "Client " << receivedMessage[0] << ": ";
         for(int i = 1; receivedMessage[i] != '\0'; i++)
         {
             cout << receivedMessage[i];
         }
-        cout << endl;
+        cout << endl;*/
     }
 }
 
@@ -309,7 +317,6 @@ int main(int argc, char *argv[])
 #pragma region GameLogic
     DrawShip ds;
     Ship* testShip = new Ship();
-/*
     testShip->setArmourClass(20);
     testShip->setTargetLock(10);
     testShip->setHullPointsMax(100);
@@ -322,6 +329,7 @@ int main(int argc, char *argv[])
     testShip->setShieldCur(Shield::Aft, 92);
     testShip->setShieldCur(Shield::Port, 93);
     testShip->setShieldCur(Shield::Starboard, 95);
+/*
 */
     sf::Sprite* testSprite = new sf::Sprite();
     sf::Texture testTex;
@@ -342,19 +350,23 @@ int main(int argc, char *argv[])
         ds.setShip(testShip);
         drawShips.push_back(ds);
         ships.push_back(drawShips.at(0).getShip());
-       /* int message_size;
-        char* testSerialization = CrunchetizeMeCapn(ships, message_size);
-        cerr << "testSerialization: " << message_size << endl;
+        cout << ships[0]->toString() << endl;
+        int message_size;
+        char* testSerialization = Protocol::CrunchetizeMeCapn(ships, message_size);
 
-        for(int i = 0; i < message_size; i++)
-            printf("%x ", testSerialization[i]);
-        printf("\n");
+        //for(int i = 0; i < message_size; i++)
+        //    printf("%x ", testSerialization[i]);
+        //printf("\n");
 
+       // cerr << "testSerialization: " << message_size << endl;
         std::vector<Ship*> deserializedShips;
-        deserializedShips = ParseShipMessage(testSerialization, message_size); 
+        deserializedShips = Protocol::ParseShipMessage(clientSd, testSerialization, message_size); 
+        cout << deserializedShips[0]->toString() << endl;
 
         cerr << "Waah";
-        return 0;*/
+        return 0;
+       /* 
+        */
     }
     sf::CircleShape selector(20, 6);
     sf::Vector2f selectorPosition = selector.getOrigin();
