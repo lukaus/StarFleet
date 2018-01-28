@@ -272,49 +272,38 @@ void        Ship::setShieldCur(Shield sh, int val)
 
 string    Ship::toString()
 {
-    string manu;
-    string sizeString = std::to_string(size);
-    string speedString = std::to_string(speed);
-    string tarlockString = std::to_string(targetLock);
-    string dtString = std::to_string(damageThreshold);
-    string ctString = std::to_string(criticalThreshold);
-    string pctString = std::to_string(powerCoreTot);
-    string pcaString = std::to_string(powerCoreAvl);
-    string hpmString = std::to_string(hullPointsMax);
-    string hpcString = std::to_string(hullPointsCur);
-    string shieldString = "";
-    for (int i=0; i<4; i++){ // builds shieldString with shieldTot array
-	shieldString += " Shield " + std::to_string(i) 
-	+ ": " + std::to_string(shieldCur[i]);
-    }
+    string toReturn = "";
+    toReturn += "X: "; 
+    toReturn += x_pos;
+    toReturn += "Y: "; 
+    toReturn += y_pos;
+    toReturn += "AC: "; 
+    toReturn += armourClass;
+    toReturn += "TL: "; 
+    toReturn += targetLock;
+    toReturn += "HPc: "; 
+    toReturn += hullPointsMax;
+    toReturn += "HPm: "; 
+    toReturn += hullPointsCur;
+    toReturn += "SFM: "; 
+    toReturn += shieldTot[Shield::Fore];
+    toReturn += "SAM: "; 
+    toReturn += shieldTot[Shield::Aft];
+    toReturn += "SPM: "; 
+    toReturn += shieldTot[Shield::Port];
+    toReturn += "SSM: "; 
+    toReturn += shieldTot[Shield::Starboard];
+    toReturn += "SFC: "; 
+    toReturn += shieldCur[Shield::Fore];
+    toReturn += "SAC: "; 
+    toReturn += shieldCur[Shield::Aft];
+    toReturn += "SPC: "; 
+    toReturn += shieldCur[Shield::Port];
+    toReturn += "SSC: "; 
+    toReturn += shieldCur[Shield::Starboard];
 
+    return toReturn;
 
-    switch (maneuv){ // determine maneuverability to return
-	case 0:
-	    manu = "Clumsy";
-	    break;
-	case 1:
-	    manu = "Poor";
-	    break;
-	case 3:
-	    manu = "Average";
-	    break;
-	case 4:
-	    manu = "Good";
-	    break;
-	case 5:
-	    manu = "Perfect";
-	    break;
-	default:
-	    manu = "ManeuvErr";
-	    break;
-    };
-
-    return ("Name: " + name + " Speed: " + speedString  + " Maneuv: " + manu + 
-	    " TargetLock: " + tarlockString + " DamageThold " + dtString +
-	    " CritTHold: " + ctString + " PowerCoreAvl: " + pcaString +
-	    " PowerCoreTot: " + pctString + " HullPointsCur: " + hpcString + 
-	    " HullPointsMax: " + hpmString + "Shields:" + shieldString);
 }
 Ship& Ship::operator= (const Ship &ship)
 {

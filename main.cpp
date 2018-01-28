@@ -329,6 +329,7 @@ int main(int argc, char *argv[])
     testShip->setShieldCur(Shield::Aft, 92);
     testShip->setShieldCur(Shield::Port, 93);
     testShip->setShieldCur(Shield::Starboard, 95);
+    cerr << testShip->toString() << "\n";
 /*
 */
     sf::Sprite* testSprite = new sf::Sprite();
@@ -336,7 +337,6 @@ int main(int argc, char *argv[])
     std::vector<Ship*> ships;
     if (testTex.loadFromFile("./images/Sprite1ENG_ON.png"/*, sf::IntRect(10, 10, 32, 34)*/))
     {
-        
         testSprite->setTexture(testTex);
         testSprite->setScale(0.4, 0.4);
         sf::Vector2f testOrigin = testSprite->getOrigin();
@@ -354,16 +354,17 @@ int main(int argc, char *argv[])
         int message_size;
         char* testSerialization = Protocol::CrunchetizeMeCapn(ships, message_size);
 
-        //for(int i = 0; i < message_size; i++)
-        //    printf("%x ", testSerialization[i]);
-        //printf("\n");
+        for(int i = 0; i < message_size; i++)
+            printf("%x ", testSerialization[i]);
+        printf("\n");
 
        // cerr << "testSerialization: " << message_size << endl;
-        std::vector<Ship*> deserializedShips = Protocol::ParseShipMessage(clientSd, testSerialization, message_size); 
+        std::vector<Ship*> deserializedShips;
+        deserializedShips = Protocol::ParseShipMessage(clientSd, testSerialization, message_size); 
+        cerr << "Waah: " << deserializedShips.size() << endl;
         cout << deserializedShips[0]->toString() << endl;
 
-        cerr << "Waah";
-        return 0;
+     //  return 0;
        /* 
         */
     }

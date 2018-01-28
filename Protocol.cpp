@@ -70,11 +70,8 @@ std::vector<Ship*> Protocol::ParseShipMessage(int clientID, char * message, int 
             message_index += sizeof(int);
             thisShip->setShieldMax((Shield)j, val);
         }
-      //  cerr << thisShip->toString() << endl;
-      //  cerr << endl << endl << endl << endl;
+        shipArray.push_back(thisShip);
     }
-
-    //cerr << "Message len: " << message_length << endl;
 
     return shipArray;
 }
