@@ -23,12 +23,15 @@ std::vector<Ship*> Protocol::ParseShipMessage(int clientID, char * message, int 
     memcpy(&message_length, &message[message_index], sizeof(int));
     message_index += sizeof(int);
 
-    int numberOfShips = 0;
+    int numberOfShips = 1;
+    cerr << "NumShips index, searching: " << message_index << endl;
     memcpy(&numberOfShips, &message[message_index], sizeof(int));
     message_index += sizeof(int);
-
+    
+    cerr << "Ships: " << numberOfShips << ", Msg Length: " << message_length << endl;
     for(int i = 0; i < numberOfShips; i++)
     {
+      //  cerr << "oeuoeu\n";
         Ship* thisShip = new Ship();
 
         int val;
@@ -71,8 +74,9 @@ std::vector<Ship*> Protocol::ParseShipMessage(int clientID, char * message, int 
             thisShip->setShieldMax((Shield)j, val);
         }
         shipArray.push_back(thisShip);
-    }
 
+    }
+    cerr << "Serialization complete, " << shipArray.size() << " ships.\n";
     return shipArray;
 }
 
@@ -90,13 +94,15 @@ char * Protocol::CrunchetizeMeCapn(std::vector<Ship*> shipArr, int &message_size
     char message_type = 'S';
     int message_index = 0;
     int numberOfShips = shipArr.size();
+    cerr << "numberOfShips: " << numberOfShips << endl;
 
     memcpy(&message[message_index], &message_type, sizeof(char));
     message_index += sizeof(char); // skip to next byte
         
     memcpy(&message[message_index], &message_size, sizeof(int));
     message_index += sizeof(int); // skip to next byte
-    
+  
+    cerr << "NumShips index, storing: " << message_index << endl;  
     memcpy(&message[message_index], &numberOfShips, sizeof(int));
     message_index += sizeof(int); // skip to next byte
     

@@ -211,12 +211,14 @@ void checkerThread()
             exit(0);
         }
 
+        cerr << "QUAZ" << endl;
+
         int size = 0;
         for(int i = 0; receivedMessage[i] != '\0'; i++)
-            size +=1;
+            size += 1;
 
+        cerr << "TEAST" << endl;
         std::vector<Ship*> resultShips = Protocol::ParseShipMessage(clientSd, receivedMessage, size);
-        cerr << "Size: " << size << endl;
         cerr << "We got " << resultShips.size() << " ships breh\n"; 
        /* // Print for the client number and the message sent
         cout << "Client " << receivedMessage[0] << ": ";
@@ -364,7 +366,7 @@ int main(int argc, char *argv[])
         cerr << "Waah: " << deserializedShips.size() << endl;
         cout << deserializedShips[0]->toString() << endl;
 
-     //  return 0;
+ //  return 0;
        /* 
         */
     }
@@ -621,6 +623,11 @@ int main(int argc, char *argv[])
                 
                 int message_length;
                 char * message = Protocol::CrunchetizeMeCapn(ships, message_length); 
+                cerr << "Mv Msg Len : " << message_length << endl;
+                
+                for(int i = 0; i < message_length; i++)
+                    printf("%x ", message[i]);
+                printf("\n");
                 send(clientSd, message, message_length, 0);
             }
             

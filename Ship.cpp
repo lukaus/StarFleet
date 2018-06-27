@@ -274,33 +274,33 @@ string    Ship::toString()
 {
     string toReturn = "";
     toReturn += "X: "; 
-    toReturn += x_pos;
+    toReturn += (int) x_pos;
     toReturn += "Y: "; 
-    toReturn += y_pos;
+    toReturn += (int) y_pos;
     toReturn += "AC: "; 
-    toReturn += armourClass;
+    toReturn += (int) armourClass;
     toReturn += "TL: "; 
-    toReturn += targetLock;
+    toReturn += (int) targetLock;
     toReturn += "HPc: "; 
-    toReturn += hullPointsMax;
+    toReturn += (int) hullPointsMax;
     toReturn += "HPm: "; 
-    toReturn += hullPointsCur;
+    toReturn += (int) hullPointsCur;
     toReturn += "SFM: "; 
-    toReturn += shieldTot[Shield::Fore];
+    toReturn += (int) shieldTot[Shield::Fore];
     toReturn += "SAM: "; 
-    toReturn += shieldTot[Shield::Aft];
+    toReturn += (int) shieldTot[Shield::Aft];
     toReturn += "SPM: "; 
-    toReturn += shieldTot[Shield::Port];
+    toReturn += (int) shieldTot[Shield::Port];
     toReturn += "SSM: "; 
-    toReturn += shieldTot[Shield::Starboard];
+    toReturn += (int) shieldTot[Shield::Starboard];
     toReturn += "SFC: "; 
-    toReturn += shieldCur[Shield::Fore];
+    toReturn += (int) shieldCur[Shield::Fore];
     toReturn += "SAC: "; 
-    toReturn += shieldCur[Shield::Aft];
+    toReturn += (int) shieldCur[Shield::Aft];
     toReturn += "SPC: "; 
-    toReturn += shieldCur[Shield::Port];
+    toReturn += (int) shieldCur[Shield::Port];
     toReturn += "SSC: "; 
-    toReturn += shieldCur[Shield::Starboard];
+    toReturn += (int) shieldCur[Shield::Starboard];
 
     return toReturn;
 
