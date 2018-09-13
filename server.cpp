@@ -210,7 +210,6 @@ int main(int argc , char *argv[])
                     {
                         if (client_socket[i] != 0)
                             send(client_socket[i] , sendBack/* buffer*/, messageSize /*strlen(buffer)*/ , 0);
-                     //   cerr << "Error: " << errno << endl;
                     }
                     // celery buffer
                     memset(buffer, 0, sizeof(buffer));
