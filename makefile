@@ -1,14 +1,20 @@
+MAIN		= main.cpp
+PROGRAMS	= HexGrid.cpp Crewman.cpp Ship.cpp Protocol.cpp Projectile.cpp
+COMPFLAGS	= -std=c++11 -o
+LINKFLAGS	= -lsfml-graphics -lsfml-window -lsfml-system -lpthread
+COMPILER	= g++
+EXECUTABLE	= starFleet
 
+all: main
 
-all: 
-	g++ -c -std=c++11 -ggdb main.cpp HexGrid.cpp Crewman.cpp Ship.cpp Projectile.cpp Protocol.cpp
-	g++ main.o HexGrid.o Crewman.o Ship.o Protocol.o Projectile.o -o starFleet -lsfml-graphics -lsfml-window -lsfml-system -lpthread
-	rm main.o HexGrid.o Crewman.o Ship.o Protocol.o Projectile.o
+main : $(MAIN) $(PROGRAMS)
+	$(COMPILER) $(COMPFLAGS) $(EXECUTABLE) $(MAIN) $(PROGRAMS) $(LINKFLAGS)
 
 clean:
-	rm *.o
+	rm *.o $(EXECUTABLE)
 
 debug:
+	$(COMPILER) $(COMPFLAGS) -ggdb $(EXECUTABLE) $(MAIN) $(PROGRAMS) $(LINKFLAGS)
 
 release:
 	g++ -c main.cpp HexGrid.cpp Crewman.cpp Ship.cpp Projectile.cpp Protocol.cpp
@@ -18,6 +24,6 @@ assembly:
 	g++ -c main.cpp HexGrid.cpp Crewman.cpp Ship.cpp Projectile.cpp Protocol.cpp -S
 	g++ main.o HexGrid.o Crewman.o Ship.o Protocol.o Projectile.o -o starFleet -lsfml-graphics -lsfml-window -lsfml-system -lpthread
 
-server:
-	g++ -c -std=c++11 -g server.cpp Ship.cpp Protocol.cpp
+server: server.cpp Ship.cpp Protocol.cpp
+	g++ -c -std=c++11 -ggdb server.cpp Ship.cpp Protocol.cpp
 	g++ server.o Ship.o Protocol.o -o server
