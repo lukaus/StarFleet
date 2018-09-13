@@ -201,11 +201,15 @@ int main(int argc , char *argv[])
                     buffer[valread] = '\0';
 
                     std::vector<Ship*> clientShips = Protocol::ParseShipMessage(sd, buffer, valread);
+                    cerr << "Client sent ship array size: " << clientShips.size() << endl;
+                    cerr << "Ship: " << clientShips[0]->toString() << endl;
+                    int messageSize;
+                    char* sendBack = Protocol::CrunchetizeMeCapn(clientShips, messageSize);
 
                     for (int i = 0; i < max_clients; i++)
                     {
                         if (client_socket[i] != 0)
-                            send(client_socket[i] , buffer, strlen(buffer) , 0);
+                            send(client_socket[i] , sendBack/* buffer*/, messageSize /*strlen(buffer)*/ , 0);
                      //   cerr << "Error: " << errno << endl;
                     }
                     // celery buffer

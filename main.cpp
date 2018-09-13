@@ -220,6 +220,7 @@ void checkerThread()
         cerr << "TEAST" << endl;
         std::vector<Ship*> resultShips = Protocol::ParseShipMessage(clientSd, receivedMessage, size);
         cerr << "We got " << resultShips.size() << " ships breh\n"; 
+        cerr << "Ship: " << resultShips[0]->toString() << endl;
        /* // Print for the client number and the message sent
         cout << "Client " << receivedMessage[0] << ": ";
         for(int i = 1; receivedMessage[i] != '\0'; i++)
@@ -620,7 +621,8 @@ int main(int argc, char *argv[])
 //                memset(&msg, 0, sizeof(msg));
   //              strcpy(msg, "Down");
     //            send(clientSd, (char*)&msg, strlen(msg), 0);
-                
+                cerr << "Ship before : " << ships[0]->toString() << endl;
+
                 int message_length;
                 char * message = Protocol::CrunchetizeMeCapn(ships, message_length); 
                 cerr << "Mv Msg Len : " << message_length << endl;

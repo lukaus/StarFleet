@@ -1,5 +1,7 @@
 #include "Ship.h"
 
+using std::to_string;
+
         Ship::Ship()
 {
     x_pos = 0;
@@ -273,34 +275,34 @@ void        Ship::setShieldCur(Shield sh, int val)
 string    Ship::toString()
 {
     string toReturn = "";
-    toReturn += "X: "; 
-    toReturn += (int) x_pos;
-    toReturn += "Y: "; 
-    toReturn += (int) y_pos;
-    toReturn += "AC: "; 
-    toReturn += (int) armourClass;
-    toReturn += "TL: "; 
-    toReturn += (int) targetLock;
-    toReturn += "HPc: "; 
-    toReturn += (int) hullPointsMax;
-    toReturn += "HPm: "; 
-    toReturn += (int) hullPointsCur;
-    toReturn += "SFM: "; 
-    toReturn += (int) shieldTot[Shield::Fore];
-    toReturn += "SAM: "; 
-    toReturn += (int) shieldTot[Shield::Aft];
-    toReturn += "SPM: "; 
-    toReturn += (int) shieldTot[Shield::Port];
-    toReturn += "SSM: "; 
-    toReturn += (int) shieldTot[Shield::Starboard];
-    toReturn += "SFC: "; 
-    toReturn += (int) shieldCur[Shield::Fore];
-    toReturn += "SAC: "; 
-    toReturn += (int) shieldCur[Shield::Aft];
-    toReturn += "SPC: "; 
-    toReturn += (int) shieldCur[Shield::Port];
-    toReturn += "SSC: "; 
-    toReturn += (int) shieldCur[Shield::Starboard];
+    toReturn += "X:"; 
+    toReturn += to_string(x_pos);
+    toReturn += " Y:"; 
+    toReturn += to_string(y_pos);
+    toReturn += " AC:"; 
+    toReturn += to_string(armourClass);
+    toReturn += " TL:"; 
+    toReturn += to_string(targetLock);
+    toReturn += " HPc:"; 
+    toReturn += to_string(hullPointsMax);
+    toReturn += " HPm:"; 
+    toReturn += to_string(hullPointsCur);
+    toReturn += " SFM:"; 
+    toReturn += to_string(shieldTot[Shield::Fore]);
+    toReturn += " SAM:"; 
+    toReturn += to_string(shieldTot[Shield::Aft]);
+    toReturn += " SPM:"; 
+    toReturn += to_string(shieldTot[Shield::Port]);
+    toReturn += " SSM:"; 
+    toReturn += to_string(shieldTot[Shield::Starboard]);
+    toReturn += " SFC:"; 
+    toReturn += to_string(shieldCur[Shield::Fore]);
+    toReturn += " SAC:"; 
+    toReturn += to_string(shieldCur[Shield::Aft]);
+    toReturn += " SPC:"; 
+    toReturn += to_string(shieldCur[Shield::Port]);
+    toReturn += " SSC:"; 
+    toReturn += to_string(shieldCur[Shield::Starboard]);
 
     return toReturn;
 

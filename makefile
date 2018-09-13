@@ -1,7 +1,7 @@
 
 
 all: 
-	g++ -c -std=c++11 -g main.cpp HexGrid.cpp Crewman.cpp Ship.cpp Projectile.cpp Protocol.cpp
+	g++ -c -std=c++11 -ggdb main.cpp HexGrid.cpp Crewman.cpp Ship.cpp Projectile.cpp Protocol.cpp
 	g++ main.o HexGrid.o Crewman.o Ship.o Protocol.o Projectile.o -o starFleet -lsfml-graphics -lsfml-window -lsfml-system -lpthread
 	rm main.o HexGrid.o Crewman.o Ship.o Protocol.o Projectile.o
 
