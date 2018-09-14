@@ -18,20 +18,16 @@ std::vector<Ship*> Protocol::ParseShipMessage(int clientID, char * message, int 
     char message_type = 'Z';
     memcpy(&message_type, &message[message_index], sizeof(char));
     message_index += sizeof(char);
-
     int message_length = 0;
     memcpy(&message_length, &message[message_index], sizeof(int));
     message_index += sizeof(int);
 
     int numberOfShips = 1;
-    cerr << "NumShips index, searching: " << message_index << endl;
     memcpy(&numberOfShips, &message[message_index], sizeof(int));
     message_index += sizeof(int);
     
-    cerr << "Ships: " << numberOfShips << ", Msg Length: " << message_length << endl;
     for(int i = 0; i < numberOfShips; i++)
     {
-      //  cerr << "oeuoeu\n";
         Ship* thisShip = new Ship();
 
         int val;
@@ -76,13 +72,15 @@ std::vector<Ship*> Protocol::ParseShipMessage(int clientID, char * message, int 
         shipArray.push_back(thisShip);
 
     }
-    cerr << "Serialization complete, " << shipArray.size() << " ships.\n";
+    //cerr << "Serialization complete, " << shipArray.size() << " ships.\n";
     return shipArray;
 }
 
 std::vector<Projectile*> Protocol::ParseProjectileMessage(char* message)
 {
+    std::vector<Projectile*> projectiles;
 
+    return projectiles;
 }
 
 char * Protocol::CrunchetizeMeCapn(std::vector<Ship*> shipArr, int &message_size)
@@ -94,7 +92,6 @@ char * Protocol::CrunchetizeMeCapn(std::vector<Ship*> shipArr, int &message_size
     char message_type = 'S';
     int message_index = 0;
     int numberOfShips = shipArr.size();
-    cerr << "numberOfShips: " << numberOfShips << endl;
 
     memcpy(&message[message_index], &message_type, sizeof(char));
     message_index += sizeof(char); // skip to next byte
@@ -102,7 +99,7 @@ char * Protocol::CrunchetizeMeCapn(std::vector<Ship*> shipArr, int &message_size
     memcpy(&message[message_index], &message_size, sizeof(int));
     message_index += sizeof(int); // skip to next byte
   
-    cerr << "NumShips index, storing: " << message_index << endl;  
+    //cerr << "NumShips index, storing: " << message_index << endl;  
     memcpy(&message[message_index], &numberOfShips, sizeof(int));
     message_index += sizeof(int); // skip to next byte
     
@@ -110,45 +107,41 @@ char * Protocol::CrunchetizeMeCapn(std::vector<Ship*> shipArr, int &message_size
     // prepare message
     for(int i = 0; i < shipArr.size(); i++)
     {
-        cout << "i: " << i << endl;        
         int val = shipArr[i]->getXpos();
         memcpy(&message[message_index], &val, sizeof(int));
         message_index += sizeof(int);
         
-        //cout << message_index << endl;
         // 16:   y pos
         val = shipArr[i]->getYpos();
         memcpy(&message[message_index], &val, sizeof(int));
         message_index += sizeof(int);
         
-        //cout << message_index << endl;
         // 16:   HP (cur)
         val = shipArr[i]->getHullPointsCur();
         memcpy(&message[message_index], &val, sizeof(int));
         message_index += sizeof(int);
-        //cout << message_index << endl;
         // 16:   HP (tot)
         
         val = shipArr[i]->getHullPointsMax();
         memcpy(&message[message_index], &val, sizeof(int));
         message_index += sizeof(int);
-        //cout << message_index << endl;
+        
         // 16:   TL
         val = shipArr[i]->getTargetLock();
         memcpy(&message[message_index], &val, sizeof(int));
         message_index += sizeof(int);
-        //cout << message_index << endl;
+       
         // 16:   AC
         val = shipArr[i]->getArmourClass();
         memcpy(&message[message_index], &val, sizeof(int));
         message_index += sizeof(int);
-        //cout << message_index << endl;
+      
         // 16:   attack bonus
         val = (int) 0;
         memcpy(&message[message_index], &val, sizeof(int));
         message_index += sizeof(int);
         // 16*4: current shield values
-        //cout << message_index << endl;
+        
         for(int j = 0; j < 4; j++)
         {
             val = shipArr[i]->getShieldCur((Shield)j);

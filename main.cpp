@@ -22,6 +22,14 @@
 #define INPUT_DELAY 100 // milliseconds
 #define SHIP_INTS (15)
 
+enum class MsgType : char{
+    ClientID = 'C',
+    Ships = 'S',
+    Projectiles = 'P',
+    Invalid = 'Z'
+};
+
+
 
 using namespace std;
 
@@ -211,23 +219,33 @@ void checkerThread()
             exit(0);
         }
 
-        cerr << "QUAZ" << endl;
 
         int size = 0;
         for(int i = 0; receivedMessage[i] != '\0'; i++)
             size += 1;
 
-        cerr << "TEAST" << endl;
-        std::vector<Ship*> resultShips = Protocol::ParseShipMessage(clientSd, receivedMessage, size);
-        cerr << "We got " << resultShips.size() << " ships breh\n"; 
-        cerr << "Ship: " << resultShips[0]->toString() << endl;
-       /* // Print for the client number and the message sent
-        cout << "Client " << receivedMessage[0] << ": ";
-        for(int i = 1; receivedMessage[i] != '\0'; i++)
+        MsgType msgType = MsgType::Invalid;
+        memcpy(&msgType, &receivedMessage[0], sizeof(char));
+        cerr << "Message type is : " << static_cast<char>(msgType) << endl;
+        std::vector<Ship*> resultShips;// = Protocol::ParseShipMessage(clientSd, receivedMessage, size);
+        switch(static_cast<char>(msgType))
         {
-            cout << receivedMessage[i];
+            case static_cast<char>(MsgType::ClientID):
+                cerr << "Client ID received\n";
+                break;
+
+            case static_cast<char>(MsgType::Ships):
+                resultShips = Protocol::ParseShipMessage(clientSd, receivedMessage, size);
+                cerr << "We got " << resultShips.size() << " ships breh\n"; 
+                cerr << "Ship: " << resultShips[0]->toString() << endl;
+                break;
+
+            case static_cast<char>(MsgType::Projectiles):
+                break;
+
+            default:
+                break;
         }
-        cout << endl;*/
     }
 }
 
@@ -332,7 +350,7 @@ int main(int argc, char *argv[])
     testShip->setShieldCur(Shield::Aft, 92);
     testShip->setShieldCur(Shield::Port, 93);
     testShip->setShieldCur(Shield::Starboard, 95);
-    cerr << testShip->toString() << "\n";
+    //cerr << testShip->toString() << "\n";
 /*
 */
     sf::Sprite* testSprite = new sf::Sprite();
@@ -353,7 +371,7 @@ int main(int argc, char *argv[])
         ds.setShip(testShip);
         drawShips.push_back(ds);
         ships.push_back(drawShips.at(0).getShip());
-        cout << ships[0]->toString() << endl;
+        //cout << ships[0]->toString() << endl;
         int message_size;
         char* testSerialization = Protocol::CrunchetizeMeCapn(ships, message_size);
 
@@ -364,8 +382,8 @@ int main(int argc, char *argv[])
        // cerr << "testSerialization: " << message_size << endl;
         std::vector<Ship*> deserializedShips;
         deserializedShips = Protocol::ParseShipMessage(clientSd, testSerialization, message_size); 
-        cerr << "Waah: " << deserializedShips.size() << endl;
-        cout << deserializedShips[0]->toString() << endl;
+        //cerr << "Waah: " << deserializedShips.size() << endl;
+        //cout << deserializedShips[0]->toString() << endl;
 
  //  return 0;
        /* 
@@ -618,19 +636,14 @@ int main(int argc, char *argv[])
 
             if(moved)
             {
-//                memset(&msg, 0, sizeof(msg));
-  //              strcpy(msg, "Down");
-    //            send(clientSd, (char*)&msg, strlen(msg), 0);
-                cerr << "Ship before : " << ships[0]->toString() << endl;
-
                 int message_length;
                 char * message = Protocol::CrunchetizeMeCapn(ships, message_length); 
-                cerr << "Mv Msg Len : " << message_length << endl;
+                /*cerr << "Mv Msg Len : " << message_length << endl;
                 
                 for(int i = 0; i < message_length; i++)
                     printf("%x ", message[i]);
                 printf("\n");
-                send(clientSd, message, message_length, 0);
+                */send(clientSd, message, message_length, 0);
             }
             
             if(shipSelected)

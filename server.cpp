@@ -31,6 +31,8 @@ static char* ServerCrunchetizeMeCapn(std::vector<Ship*> shipArr, int& message_si
 static std::vector<Projectile*> ServerParseProjectileMessage(char* message);
 static char* ServerSerializeProjectileArray(std::vector<Projectile*> projArr);
 */
+vector<Ship*> UpdateMasterList(vector<Ship*> &ml, vector<Ship*> &cl, int cid);
+
 int main(int argc , char *argv[])  
 {  
     using namespace Protocol;
@@ -167,6 +169,14 @@ int main(int argc , char *argv[])
                     client_socket[i] = new_socket;  
                     printf("Adding to list of sockets as %d\n" , i);  
                         
+
+                    // Send connection its clientID (TODO probably security stuff too, can send encryption or something)
+                    char* client_id_msg = new char[sizeof(int) + sizeof(char)];
+                    char msgType = 'C';
+                    memcpy(&client_id_msg[0], &msgType, sizeof(char)); 
+                    memcpy(&client_id_msg[sizeof(char)], &i, sizeof(int)); 
+                    send(client_socket[i], client_id_msg, sizeof(int), 0);    
+                    
                     break;  
                 }  
             }  
@@ -201,8 +211,8 @@ int main(int argc , char *argv[])
                     buffer[valread] = '\0';
 
                     std::vector<Ship*> clientShips = Protocol::ParseShipMessage(sd, buffer, valread);
-                    cerr << "Client sent ship array size: " << clientShips.size() << endl;
-                    cerr << "Ship: " << clientShips[0]->toString() << endl;
+            //        cerr << "Client sent ship array size: " << clientShips.size() << endl;
+              //      cerr << "Ship: " << clientShips[0]->toString() << endl;
                     int messageSize;
                     char* sendBack = Protocol::CrunchetizeMeCapn(clientShips, messageSize);
 
@@ -223,3 +233,16 @@ int main(int argc , char *argv[])
         
     return 0;  
 }
+
+// ml - master list by reference
+// cl - client list by reference
+// cid- client id
+
+vector<Ship*> UpdateMasterList(vector<Ship*> &ml, vector<Ship*> &cl, int cid)
+{
+    // verify client (TODO)   
+    
+    
+    return ml;
+}
+
