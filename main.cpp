@@ -200,7 +200,7 @@ void DrawShips(sf::RenderWindow & window, HexGrid &grid, vector<DrawShip> & ship
 DrawShip * GetShipHere(sf::Vector2f pos, vector<DrawShip> & shipList);
 
 // Thread to check for server sending messages
-void checkerThread()
+void checkerThread(vector<Ship*>* ships, int* clientShip)
 {
     // Buffer for the message incoming
     char receivedMessage[1500];
@@ -228,14 +228,18 @@ void checkerThread()
         memcpy(&msgType, &receivedMessage[0], sizeof(char));
         cerr << "Message type is : " << static_cast<char>(msgType) << endl;
         std::vector<Ship*> resultShips;// = Protocol::ParseShipMessage(clientSd, receivedMessage, size);
+       	int fromServer = -1;
         switch(static_cast<char>(msgType))
         {
             case static_cast<char>(MsgType::ClientID):
-                cerr << "Client ID received\n";
+                *clientShip = Protocol::ParseClientIDMessage(receivedMessage, size);
+                cerr << "Client ID received : " << *clientShip << "\n";
                 break;
 
             case static_cast<char>(MsgType::Ships):
-                resultShips = Protocol::ParseShipMessage(clientSd, receivedMessage, size);
+
+                resultShips = Protocol::ParseShipMessage(clientSd, receivedMessage, size, fromServer);
+                cerr << "cid = " << *clientShip << endl;
                 cerr << "We got " << resultShips.size() << " ships breh\n"; 
                 cerr << "Ship: " << resultShips[0]->toString() << endl;
                 break;
@@ -289,8 +293,11 @@ int main(int argc, char *argv[])
     else
         cout << "Connected to the server!" << endl;
 
+    std::vector<Ship*> ships;
+    int clientShip = 0; // index for this client's DrawShip in ships vector
+
     // Spawn the thread to check for incoming messages from the server
-    thread t1(checkerThread);
+    thread t1(checkerThread, &ships, &clientShip);
     // window logic
     sf::RenderWindow window(sf::VideoMode(1270, 720), "Starfinder Commander");
     window.setFramerateLimit(60);
@@ -315,7 +322,6 @@ int main(int argc, char *argv[])
     
     bool shipSelected;
     Ship * selectedShip = NULL;
-    int clientShip = 0; // index for this client's DrawShip in ships vector
 
     sf::Font font;
     if (!font.loadFromFile("testFont.ttf")) {
@@ -355,7 +361,6 @@ int main(int argc, char *argv[])
 */
     sf::Sprite* testSprite = new sf::Sprite();
     sf::Texture testTex;
-    std::vector<Ship*> ships;
     if (testTex.loadFromFile("./images/Sprite1ENG_ON.png"/*, sf::IntRect(10, 10, 32, 34)*/))
     {
         testSprite->setTexture(testTex);
@@ -372,22 +377,6 @@ int main(int argc, char *argv[])
         drawShips.push_back(ds);
         ships.push_back(drawShips.at(0).getShip());
         //cout << ships[0]->toString() << endl;
-        int message_size;
-        char* testSerialization = Protocol::CrunchetizeMeCapn(ships, message_size);
-
-        for(int i = 0; i < message_size; i++)
-            printf("%x ", testSerialization[i]);
-        printf("\n");
-
-       // cerr << "testSerialization: " << message_size << endl;
-        std::vector<Ship*> deserializedShips;
-        deserializedShips = Protocol::ParseShipMessage(clientSd, testSerialization, message_size); 
-        //cerr << "Waah: " << deserializedShips.size() << endl;
-        //cout << deserializedShips[0]->toString() << endl;
-
- //  return 0;
-       /* 
-        */
     }
     sf::CircleShape selector(20, 6);
     sf::Vector2f selectorPosition = selector.getOrigin();
@@ -615,29 +604,30 @@ int main(int argc, char *argv[])
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
             {
                 moved = true;
-                drawShips[0].Left();
+                drawShips[clientShip].Left();
 
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
             {
                 moved = true;
-                drawShips[0].Right();
+                drawShips[clientShip].Right();
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
             {
                 moved = true;
-                drawShips[0].Forward(grid);
+                drawShips[clientShip].Forward(grid);
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
             {
                 moved = true;
-                drawShips[0].Back(grid);
+                drawShips[clientShip].Back(grid);
             }
 
             if(moved)
             {
+            	cerr << "sending\n";
                 int message_length;
-                char * message = Protocol::CrunchetizeMeCapn(ships, message_length); 
+                char * message = Protocol::CrunchetizeMeCapn(clientShip, ships, message_length); 
                 /*cerr << "Mv Msg Len : " << message_length << endl;
                 
                 for(int i = 0; i < message_length; i++)

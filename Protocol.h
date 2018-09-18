@@ -9,9 +9,9 @@ using namespace std;
 #define PROTOCOL_H
 namespace Protocol
 {
-
-    std::vector<Ship*> ParseShipMessage(int clientID, char * message, int message_size);
-    char* CrunchetizeMeCapn(std::vector<Ship*> shipArr, int& message_size);
+	int	ParseClientIDMessage(char * message, int message_size);
+    std::vector<Ship*> ParseShipMessage(int sd, char * message, int message_size, int &clientID);
+    char* CrunchetizeMeCapn(int clientID, std::vector<Ship*> shipArr, int& message_size);
     std::vector<Projectile*> ParseProjectileMessage(char* message);
     char* SerializeProjectileArray(std::vector<Projectile*> projArr);
 

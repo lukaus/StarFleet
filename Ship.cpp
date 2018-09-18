@@ -279,6 +279,8 @@ string    Ship::toString()
     toReturn += to_string(x_pos);
     toReturn += " Y:"; 
     toReturn += to_string(y_pos);
+    toReturn += " O:"; 
+    toReturn += to_string(orientation);
     toReturn += " AC:"; 
     toReturn += to_string(armourClass);
     toReturn += " TL:"; 

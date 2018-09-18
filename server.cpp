@@ -50,6 +50,9 @@ int main(int argc , char *argv[])
     int n;  
     int max_sd;  
 
+    vector<Ship*> masterShipList;
+    int numShips = 0;
+
     struct sockaddr_in address;  
         
     char buffer[1025];  //data buffer of 1K 
@@ -174,9 +177,10 @@ int main(int argc , char *argv[])
                     char* client_id_msg = new char[sizeof(int) + sizeof(char)];
                     char msgType = 'C';
                     memcpy(&client_id_msg[0], &msgType, sizeof(char)); 
-                    memcpy(&client_id_msg[sizeof(char)], &i, sizeof(int)); 
-                    send(client_socket[i], client_id_msg, sizeof(int), 0);    
-                    
+                    int sendIndex = numShips;
+                    memcpy(&client_id_msg[sizeof(char)], &sendIndex, sizeof(int)); 
+                    send(client_socket[i], client_id_msg, sizeof(int) + sizeof(char), 0);
+                    numShips++;
                     break;  
                 }  
             }  
@@ -198,7 +202,7 @@ int main(int argc , char *argv[])
                     getpeername(sd , (struct sockaddr*)&address , (socklen_t*)&addrlen);  
                     printf("Host disconnected , ip %s , port %d \n" , 
                           inet_ntoa(address.sin_addr) , ntohs(address.sin_port));  
-                    
+                    numShips--;
                     //Close the socket and mark as 0 in list for reuse 
                     close( sd );  
                     client_socket[i] = 0;
@@ -209,12 +213,13 @@ int main(int argc , char *argv[])
                 {  
 
                     buffer[valread] = '\0';
-
-                    std::vector<Ship*> clientShips = Protocol::ParseShipMessage(sd, buffer, valread);
-            //        cerr << "Client sent ship array size: " << clientShips.size() << endl;
-              //      cerr << "Ship: " << clientShips[0]->toString() << endl;
+                    int fromClient;
+                    std::vector<Ship*> clientShips = Protocol::ParseShipMessage(sd, buffer, valread, fromClient);
+                    cerr << "Client sent ship array size: " << clientShips.size() << endl;
+                    cerr << "Ship: " << clientShips[0]->toString() << endl;
                     int messageSize;
-                    char* sendBack = Protocol::CrunchetizeMeCapn(clientShips, messageSize);
+
+                    char* sendBack = Protocol::CrunchetizeMeCapn(-1, clientShips, messageSize);
 
                     for (int i = 0; i < max_clients; i++)
                     {

@@ -11,7 +11,7 @@ main : $(MAIN) $(PROGRAMS)
 	$(COMPILER) $(COMPFLAGS) $(EXECUTABLE) $(MAIN) $(PROGRAMS) $(LINKFLAGS)
 
 clean:
-	rm *.o $(EXECUTABLE)
+	rm *.o $(EXECUTABLE) server
 
 debug:
 	$(COMPILER) $(COMPFLAGS) -ggdb $(EXECUTABLE) $(MAIN) $(PROGRAMS) $(LINKFLAGS)

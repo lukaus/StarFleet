@@ -9,18 +9,41 @@
 
 using namespace std;
 
-#define SHIP_INTS (15)
+#define SHIP_INTS (16) // up this when stuff added
 
-std::vector<Ship*> Protocol::ParseShipMessage(int clientID, char * message, int message_size)
+int Protocol::ParseClientIDMessage(char * message, int message_size)
+{
+    int message_index = 0;
+    char message_type = 'Z';
+    memcpy(&message_type, &message[message_index], sizeof(char));
+    message_index += sizeof(char);
+
+    int message_length = 0;
+    memcpy(&message_length, &message[message_index], sizeof(int));
+    message_index += sizeof(int);
+
+    int cid = -1;
+    memcpy(&cid, &message[message_index], sizeof(int));
+    message_index += sizeof(int);
+    return cid;
+}
+
+std::vector<Ship*> Protocol::ParseShipMessage(int sd, char * message, int message_size, int &clientID)
 {
     std::vector<Ship*> shipArray;
     int message_index = 0;
     char message_type = 'Z';
     memcpy(&message_type, &message[message_index], sizeof(char));
     message_index += sizeof(char);
+
     int message_length = 0;
     memcpy(&message_length, &message[message_index], sizeof(int));
     message_index += sizeof(int);
+
+    int cid = -1;
+    memcpy(&cid, &message[message_index], sizeof(int));
+    message_index += sizeof(int);
+    clientID = cid;
 
     int numberOfShips = 1;
     memcpy(&numberOfShips, &message[message_index], sizeof(int));
@@ -38,6 +61,10 @@ std::vector<Ship*> Protocol::ParseShipMessage(int clientID, char * message, int 
         memcpy(&val, &message[message_index], sizeof(int));
         message_index += sizeof(int);
         thisShip->setYpos(val);
+
+        memcpy(&val, &message[message_index], sizeof(int));
+        message_index += sizeof(int);
+        thisShip->setOrientation( (Orientation) val);
 
         memcpy(&val, &message[message_index], sizeof(int));
         message_index += sizeof(int);
@@ -83,9 +110,9 @@ std::vector<Projectile*> Protocol::ParseProjectileMessage(char* message)
     return projectiles;
 }
 
-char * Protocol::CrunchetizeMeCapn(std::vector<Ship*> shipArr, int &message_size)
+char * Protocol::CrunchetizeMeCapn(int clientID, std::vector<Ship*> shipArr, int &message_size)
 {
-    message_size = sizeof(char) + sizeof(int) + sizeof(int) + (shipArr.size() * (sizeof(int) * SHIP_INTS));
+    message_size = sizeof(char) + sizeof(int) + sizeof(int) + sizeof(int) + (shipArr.size() * (sizeof(int) * SHIP_INTS));
     //cerr << "message_size: " << message_size << endl;
     char* message = new char[message_size];
 
@@ -97,6 +124,9 @@ char * Protocol::CrunchetizeMeCapn(std::vector<Ship*> shipArr, int &message_size
     message_index += sizeof(char); // skip to next byte
         
     memcpy(&message[message_index], &message_size, sizeof(int));
+    message_index += sizeof(int); // skip to next byte
+
+    memcpy(&message[message_index], &clientID, sizeof(int));
     message_index += sizeof(int); // skip to next byte
   
     //cerr << "NumShips index, storing: " << message_index << endl;  
@@ -113,6 +143,11 @@ char * Protocol::CrunchetizeMeCapn(std::vector<Ship*> shipArr, int &message_size
         
         // 16:   y pos
         val = shipArr[i]->getYpos();
+        memcpy(&message[message_index], &val, sizeof(int));
+        message_index += sizeof(int);
+        
+        // 16:   orientation
+        val = (int)shipArr[i]->getOrientation();
         memcpy(&message[message_index], &val, sizeof(int));
         message_index += sizeof(int);
         
