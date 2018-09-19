@@ -181,6 +181,7 @@ int main(int argc , char *argv[])
                     memcpy(&client_id_msg[sizeof(char)], &sendIndex, sizeof(int)); 
                     send(client_socket[i], client_id_msg, sizeof(int) + sizeof(char), 0);
                     numShips++;
+                    cerr << "There are "<<sendIndex<<" ships.\n";
                     break;  
                 }  
             }  
@@ -203,6 +204,7 @@ int main(int argc , char *argv[])
                     printf("Host disconnected , ip %s , port %d \n" , 
                           inet_ntoa(address.sin_addr) , ntohs(address.sin_port));  
                     numShips--;
+                    masterShipList.pop_back();
                     //Close the socket and mark as 0 in list for reuse 
                     close( sd );  
                     client_socket[i] = 0;
@@ -218,9 +220,10 @@ int main(int argc , char *argv[])
                     cerr << "Client sent ship array size: " << clientShips.size() << endl;
                     cerr << "Ship: " << clientShips[0]->toString() << endl;
                     int messageSize;
+                    UpdateMasterList(masterShipList, clientShips, fromClient);
 
-                    char* sendBack = Protocol::CrunchetizeMeCapn(-1, clientShips, messageSize);
-
+                    char* sendBack = Protocol::CrunchetizeMeCapn(-1, masterShipList, messageSize);
+                    
                     for (int i = 0; i < max_clients; i++)
                     {
                         if (client_socket[i] != 0)
@@ -247,7 +250,10 @@ vector<Ship*> UpdateMasterList(vector<Ship*> &ml, vector<Ship*> &cl, int cid)
 {
     // verify client (TODO)   
     
-    
+    if(ml.size() < cid+1)
+        ml.push_back(new Ship());
+    ml[cid] = cl[0];
+    cerr << "MSL: " << ml.size() <<  "\n";
     return ml;
 }
 

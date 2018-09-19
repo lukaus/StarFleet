@@ -234,11 +234,17 @@ void checkerThread(vector<Ship*>* ships, int* clientShip)
             case static_cast<char>(MsgType::ClientID):
                 *clientShip = Protocol::ParseClientIDMessage(receivedMessage, size);
                 cerr << "Client ID received : " << *clientShip << "\n";
+                if(ships->size() < *clientShip)
+                {
+                    cerr << "Ship size is " << ships->size() << "Adding entry\n"; 
+                    ships->push_back(new Ship());
+                }
                 break;
 
             case static_cast<char>(MsgType::Ships):
 
                 resultShips = Protocol::ParseShipMessage(clientSd, receivedMessage, size, fromServer);
+                *ships = resultShips;
                 cerr << "cid = " << *clientShip << endl;
                 cerr << "We got " << resultShips.size() << " ships breh\n"; 
                 cerr << "Ship: " << resultShips[0]->toString() << endl;
@@ -413,6 +419,45 @@ int main(int argc, char *argv[])
     inputDelayTimer.restart();
     while (window.isOpen())
     {
+        if(ships.size() < clientShip+1)
+        {
+            cerr << ships.size() << " < " << (clientShip-1) << endl;
+            DrawShip ds2;
+            Ship* newShip = new Ship();
+            newShip->setArmourClass(20);
+            newShip->setTargetLock(10);
+            newShip->setHullPointsMax(100);
+            newShip->setHullPointsCur(53);
+            newShip->setShieldMax(Shield::Fore, 77);
+            newShip->setShieldMax(Shield::Aft, 78);
+            newShip->setShieldMax(Shield::Port, 79);
+            newShip->setShieldMax(Shield::Starboard, 90);
+            newShip->setShieldCur(Shield::Fore, 91);
+            newShip->setShieldCur(Shield::Aft, 92);
+            newShip->setShieldCur(Shield::Port, 93);
+            newShip->setShieldCur(Shield::Starboard, 95);
+            //cerr << testShip->toString() << "\n";
+        /*
+        */
+            sf::Sprite* newSprite = new sf::Sprite();
+            sf::Texture newTex;
+            if (newTex.loadFromFile("./images/Sprite1ENG_ON.png"/*, sf::IntRect(10, 10, 32, 34)*/))
+            {
+                newSprite->setTexture(newTex);
+                newSprite->setScale(0.4, 0.4);
+                sf::Vector2f testOrigin = newSprite->getOrigin();
+                testOrigin.x = newSprite->getOrigin().x + (newSprite->getLocalBounds().width / 2);
+                testOrigin.y = newSprite->getOrigin().y + (newSprite->getLocalBounds().height / 2);
+                newSprite->setOrigin(testOrigin);
+                testOrigin = sf::Vector2f(newSprite->getLocalBounds().height, newSprite->getLocalBounds().width);
+
+
+                ds2.setSprite(newSprite);
+                ds2.setShip(newShip);
+                drawShips.push_back(ds2);
+                ships.push_back(drawShips.at(clientShip).getShip());
+            }
+        }
        // if(inputDelayTimer.getElapsedTime().asMilliseconds() < INPUT_DELAY)
        //     continue;
        // inputDelayTimer.restart();
@@ -625,7 +670,6 @@ int main(int argc, char *argv[])
 
             if(moved)
             {
-            	cerr << "sending\n";
                 int message_length;
                 char * message = Protocol::CrunchetizeMeCapn(clientShip, ships, message_length); 
                 /*cerr << "Mv Msg Len : " << message_length << endl;

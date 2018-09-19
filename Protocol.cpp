@@ -18,10 +18,6 @@ int Protocol::ParseClientIDMessage(char * message, int message_size)
     memcpy(&message_type, &message[message_index], sizeof(char));
     message_index += sizeof(char);
 
-    int message_length = 0;
-    memcpy(&message_length, &message[message_index], sizeof(int));
-    message_index += sizeof(int);
-
     int cid = -1;
     memcpy(&cid, &message[message_index], sizeof(int));
     message_index += sizeof(int);
