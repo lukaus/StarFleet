@@ -662,10 +662,10 @@ vector<DrawShip> CheckDrawShips(/*vector<DrawShip>& drawShips,*/ vector<Ship*>& 
 
         DrawShip drawShp;
         sf::Sprite* sprt = new sf::Sprite();
-        sf::Texture tex;
-        if (tex.loadFromFile(spriteFilename))
+        sf::Texture* tex = new sf::Texture();
+        if (tex->loadFromFile(spriteFilename))
         {
-            sprt->setTexture(tex);
+            sprt->setTexture(*tex);
             sprt->setScale(0.4, 0.4);
             sf::Vector2f origin = sprt->getOrigin();
             origin.x = sprt->getOrigin().x + (sprt->getLocalBounds().width / 2);
