@@ -17,8 +17,6 @@
 #include "Projectile.h"
 #include "Protocol.h"
 
-#define SHIP_INTS (15)
-
 using namespace std;    
 
 #define TRUE   1 
@@ -186,7 +184,7 @@ int main(int argc , char *argv[])
                 //incoming message 
                 if ((valread = read( sd , buffer, 99999)) == 0)  
                 {
-                    //Somebody disconnected , get his details and print 
+                    //Somebody disconnected , get his OR HER details and print 
                     getpeername(sd , (struct sockaddr*)&address , (socklen_t*)&addrlen);  
                     printf("Host disconnected , ip %s , port %d \n" , 
                           inet_ntoa(address.sin_addr) , ntohs(address.sin_port));  
@@ -234,12 +232,10 @@ int main(int argc , char *argv[])
 // cid- client id
 void UpdateMasterList(vector<Ship*> &ml, vector<Ship*> &cl, int cid)
 {
-    // verify client (TODO) - for now, probably can be as simple as making sure no client tried to change a ship.id
-    
+    // verify client (TODO) - for now, probably can be as simple as making sure no client tried to change a ship.id    
     if(ml.size() < cid+1)
         ml.push_back(new Ship());
     ml[cid] = cl[cid];
     cerr << "MSL size: " << ml.size() <<  "\n";
-    //return ml;
 }
 

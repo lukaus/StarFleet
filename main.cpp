@@ -20,7 +20,6 @@
 #define DRAG_TIMEOUT 200			// in milliseconds
 #define DOUBLE_CLICK_TIMEOUT 500	// in milliseconds
 #define INPUT_DELAY 100 // milliseconds
-#define SHIP_INTS (15)
 
 enum class MsgType : char{
     ClientID = 'C',
