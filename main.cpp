@@ -29,8 +29,6 @@ enum class MsgType : char{
     Invalid = 'Z'
 };
 
-
-
 using namespace std;
 
 // Global variable for the client socket descripter...needed for thread
@@ -38,7 +36,6 @@ int clientSd;
 
 class DrawShip
 {
-    //friend class boost::serialization::access;
 private:
     Ship* ship;
     sf::Sprite* sprite;
@@ -198,13 +195,14 @@ public:
 
 void DrawShips(sf::RenderWindow & window, HexGrid &grid, vector<DrawShip> & shipList);
 DrawShip * GetShipHere(sf::Vector2f pos, vector<DrawShip> & shipList);
+//void CheckDrawShips(vector<DrawShip>& drawShips, vector<Ship>& ships, int cid);
+vector<DrawShip> CheckDrawShips(/*vector<DrawShip>& drawShips,*/ vector<Ship*>& ships, int& cid);
 
 // Thread to check for server sending messages
 void checkerThread(vector<Ship*>* ships, int* clientShip)
 {
     // Buffer for the message incoming
     char receivedMessage[1500];
-    //char * receivedMessage;
     while (1)
     {
         // Clear buffer
@@ -219,7 +217,6 @@ void checkerThread(vector<Ship*>* ships, int* clientShip)
             exit(0);
         }
 
-
         int size = 0;
         for(int i = 0; receivedMessage[i] != '\0'; i++)
             size += 1;
@@ -227,7 +224,7 @@ void checkerThread(vector<Ship*>* ships, int* clientShip)
         MsgType msgType = MsgType::Invalid;
         memcpy(&msgType, &receivedMessage[0], sizeof(char));
         cerr << "Message type is : " << static_cast<char>(msgType) << endl;
-        std::vector<Ship*> resultShips;// = Protocol::ParseShipMessage(clientSd, receivedMessage, size);
+        std::vector<Ship*> resultShips;
        	int fromServer = -1;
         switch(static_cast<char>(msgType))
         {
@@ -262,13 +259,6 @@ void checkerThread(vector<Ship*>* ships, int* clientShip)
 int main(int argc, char *argv[])
 {
     using namespace Protocol;
-    // Client-server stuff
-
-    // For the messages to the server upon key presses
-
-
-//    char msg[5000];
-
     // Usage
     if(argc != 3)
     {
@@ -322,8 +312,6 @@ int main(int argc, char *argv[])
     sf::View hud = sf::View(window.getView());
 
     sf::Vector2u winSize = window.getSize();
-    //sf::RectangleShape hudRect = sf::RectangleShape(sf::Vector2f(0, 670));
-    //hudRect.setSize(sf::Vector2f(1270, 50));
     sf::Vector2f mPos_old = window.getView().getCenter();
     
     bool shipSelected;
@@ -343,47 +331,30 @@ int main(int argc, char *argv[])
     sf::Clock leftDragTimer;
     sf::Clock doubleLeftClickTimer;
 
+    // Create initial client ship
+    Ship* shp = new Ship();
+    shp->setXpos(clientShip);
+    shp->setYpos(clientShip);
+    shp->setID(clientShip);
+    shp->setArmourClass(20);
+    shp->setTargetLock(10);
+    shp->setHullPointsMax(100);
+    shp->setHullPointsCur(53);
+    shp->setShieldMax(Shield::Fore, 77);
+    shp->setShieldMax(Shield::Aft, 78);
+    shp->setShieldMax(Shield::Port, 79);
+    shp->setShieldMax(Shield::Starboard, 90);
+    shp->setShieldCur(Shield::Fore, 91);
+    shp->setShieldCur(Shield::Aft, 92);
+    shp->setShieldCur(Shield::Port, 93);
+    shp->setShieldCur(Shield::Starboard, 95);
+    ships.push_back(shp);
     // Game logic
     vector<DrawShip> drawShips;
     sf::Clock inputDelayTimer;
 
 #pragma region GameLogic
-    DrawShip ds;
-    Ship* testShip = new Ship();
-    testShip->setArmourClass(20);
-    testShip->setTargetLock(10);
-    testShip->setHullPointsMax(100);
-    testShip->setHullPointsCur(53);
-    testShip->setShieldMax(Shield::Fore, 77);
-    testShip->setShieldMax(Shield::Aft, 78);
-    testShip->setShieldMax(Shield::Port, 79);
-    testShip->setShieldMax(Shield::Starboard, 90);
-    testShip->setShieldCur(Shield::Fore, 91);
-    testShip->setShieldCur(Shield::Aft, 92);
-    testShip->setShieldCur(Shield::Port, 93);
-    testShip->setShieldCur(Shield::Starboard, 95);
-    //cerr << testShip->toString() << "\n";
-/*
-*/
-    sf::Sprite* testSprite = new sf::Sprite();
-    sf::Texture testTex;
-    if (testTex.loadFromFile("./images/Sprite1ENG_ON.png"/*, sf::IntRect(10, 10, 32, 34)*/))
-    {
-        testSprite->setTexture(testTex);
-        testSprite->setScale(0.4, 0.4);
-        sf::Vector2f testOrigin = testSprite->getOrigin();
-        testOrigin.x = testSprite->getOrigin().x + (testSprite->getLocalBounds().width / 2);
-        testOrigin.y = testSprite->getOrigin().y + (testSprite->getLocalBounds().height / 2);
-        testSprite->setOrigin(testOrigin);
-        testOrigin = sf::Vector2f(testSprite->getLocalBounds().height, testSprite->getLocalBounds().width);
-
-
-        ds.setSprite(testSprite);
-        ds.setShip(testShip);
-        drawShips.push_back(ds);
-        ships.push_back(drawShips.at(0).getShip());
-        //cout << ships[0]->toString() << endl;
-    }
+    // Interface items
     sf::CircleShape selector(20, 6);
     sf::Vector2f selectorPosition = selector.getOrigin();
 
@@ -393,7 +364,7 @@ int main(int argc, char *argv[])
     selector.setOrigin(selectorPosition);
     selector.setFillColor(sf::Color(0, 0, 255, 100));
 
-    selector.setPosition(sf::Vector2f(grid.offset_to_pixel(sf::Vector2f(99, 99))));
+    selector.setPosition(sf::Vector2f(grid.offset_to_pixel(sf::Vector2f(999, 999))));
 
     sf::CircleShape selectedShipOverlay(20,6);
     sf::Vector2f selectedShipPosition = selectedShipOverlay.getOrigin();
@@ -404,7 +375,7 @@ int main(int argc, char *argv[])
     selectedShipOverlay.setOrigin(selectedShipPosition);
     selectedShipOverlay.setFillColor(sf::Color(255, 255, 0, 50));
 
-    selectedShipOverlay.setPosition(sf::Vector2f(grid.offset_to_pixel(sf::Vector2f(99,99))));
+    selectedShipOverlay.setPosition(sf::Vector2f(grid.offset_to_pixel(sf::Vector2f(999,999))));
 
 #pragma endregion
     float delt;
@@ -413,55 +384,12 @@ int main(int argc, char *argv[])
     sf::Vector2f mousePos;
 
     winSize = window.getSize();
-    //hudRect.setPosition(sf::Vector2f(50, 50));
-    //hudRect.setSize(sf::Vector2f(30, 50));
     sf::Event event;
     inputDelayTimer.restart();
     while (window.isOpen())
     {
-        if(ships.size() < clientShip+1)
-        {
-            cerr << ships.size() << " < " << (clientShip-1) << endl;
-            DrawShip ds2;
-            Ship* newShip = new Ship();
-            newShip->setArmourClass(20);
-            newShip->setTargetLock(10);
-            newShip->setHullPointsMax(100);
-            newShip->setHullPointsCur(53);
-            newShip->setShieldMax(Shield::Fore, 77);
-            newShip->setShieldMax(Shield::Aft, 78);
-            newShip->setShieldMax(Shield::Port, 79);
-            newShip->setShieldMax(Shield::Starboard, 90);
-            newShip->setShieldCur(Shield::Fore, 91);
-            newShip->setShieldCur(Shield::Aft, 92);
-            newShip->setShieldCur(Shield::Port, 93);
-            newShip->setShieldCur(Shield::Starboard, 95);
-            //cerr << testShip->toString() << "\n";
-        /*
-        */
-            sf::Sprite* newSprite = new sf::Sprite();
-            sf::Texture newTex;
-            if (newTex.loadFromFile("./images/Sprite1ENG_ON.png"/*, sf::IntRect(10, 10, 32, 34)*/))
-            {
-                newSprite->setTexture(newTex);
-                newSprite->setScale(0.4, 0.4);
-                sf::Vector2f testOrigin = newSprite->getOrigin();
-                testOrigin.x = newSprite->getOrigin().x + (newSprite->getLocalBounds().width / 2);
-                testOrigin.y = newSprite->getOrigin().y + (newSprite->getLocalBounds().height / 2);
-                newSprite->setOrigin(testOrigin);
-                testOrigin = sf::Vector2f(newSprite->getLocalBounds().height, newSprite->getLocalBounds().width);
-
-
-                ds2.setSprite(newSprite);
-                ds2.setShip(newShip);
-                drawShips.push_back(ds2);
-                ships.push_back(drawShips.at(clientShip).getShip());
-            }
-        }
-       // if(inputDelayTimer.getElapsedTime().asMilliseconds() < INPUT_DELAY)
-       //     continue;
-       // inputDelayTimer.restart();
-        
+        drawShips = CheckDrawShips(ships, clientShip);   // Make sure ship list is still up to date (might make more sense for CheckerThread to just do this? 
+                            // hopefully there won't be any race condition type things that happen)
         while (window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
@@ -631,9 +559,7 @@ int main(int argc, char *argv[])
                 sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
                 camera = sf::View(visibleArea);
                 hud = sf::View(visibleArea);
-                //hudRect.setSize(sf::Vector2f(event.size.width-20, 50));
-                //hudRect.setPosition(sf::Vector2f(10, event.size.height - 100));
-
+              
                 window.setView(sf::View(visibleArea));
             }
 #pragma endregion
@@ -650,7 +576,6 @@ int main(int argc, char *argv[])
             {
                 moved = true;
                 drawShips[clientShip].Left();
-
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
             {
@@ -672,17 +597,12 @@ int main(int argc, char *argv[])
             {
                 int message_length;
                 char * message = Protocol::CrunchetizeMeCapn(clientShip, ships, message_length); 
-                /*cerr << "Mv Msg Len : " << message_length << endl;
-                
-                for(int i = 0; i < message_length; i++)
-                    printf("%x ", message[i]);
-                printf("\n");
-                */send(clientSd, message, message_length, 0);
+                send(clientSd, message, message_length, 0);
             }
             
             if(shipSelected)
             {
-            selectedShipOverlay.setPosition(sf::Vector2f(grid.offset_to_pixel( drawShips[clientShip].position() )));     
+                selectedShipOverlay.setPosition(sf::Vector2f(grid.offset_to_pixel( drawShips[clientShip].position() )));     
             }
         }
 
@@ -724,4 +644,40 @@ DrawShip * GetShipHere(sf::Vector2f pos, vector<DrawShip> & shipList)
             return &shipList[i];
     }
     return NULL;
+}
+
+// Properly populate the drawShip array based on the cid and the number of ships from server
+vector<DrawShip> CheckDrawShips(/*vector<DrawShip>& drawShips,*/ vector<Ship*>& ships, int& cid)
+{
+    vector<DrawShip> drawShips;
+    // Find client ship
+    for(int i = 0; i < ships.size(); i++)
+    {
+        Ship* shp = ships[i];
+        string spriteFilename = "";
+        if(i == cid)
+            spriteFilename = "./images/Sprite1ENG_ON.png";
+        else
+            spriteFilename = "./images/Sprite2ENG_ON.png";
+
+        DrawShip drawShp;
+        sf::Sprite* sprt = new sf::Sprite();
+        sf::Texture tex;
+        if (tex.loadFromFile(spriteFilename))
+        {
+            sprt->setTexture(tex);
+            sprt->setScale(0.4, 0.4);
+            sf::Vector2f origin = sprt->getOrigin();
+            origin.x = sprt->getOrigin().x + (sprt->getLocalBounds().width / 2);
+            origin.y = sprt->getOrigin().y + (sprt->getLocalBounds().height / 2);
+            sprt->setOrigin(origin);
+            origin = sf::Vector2f(sprt->getLocalBounds().height, sprt->getLocalBounds().width);
+
+            drawShp.setSprite(sprt);
+            drawShp.setShip(shp);
+            drawShips.push_back(drawShp);
+           // ships.push_back(drawShips.at(cid).getShip());
+        }
+    }
+    return drawShips;
 }

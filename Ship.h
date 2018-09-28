@@ -52,6 +52,10 @@ class Ship
 {
 private:
 	// Non-changing fields
+	int id;						// Unique identifier for ship
+
+	int ownerCID;				// ClientID of client who owns ship 
+								// The following are all truly defiened in the Starfinder Core Rulebook
 	string name;				// 
 	float tier;					// 
 	int size;					// 
@@ -87,7 +91,7 @@ private:
 	string* specialAbilities;	// 
 	int cost;
 
-    // Graphics
+    // Graphics properties
     int x_pos;
     int y_pos;
 
@@ -96,7 +100,10 @@ private:
 public:
 
 	Ship();
-	Ship(int sp, Maneuverability m, int ac, int tl, int dm, int crit, int pcc, int hp, int * shield);
+	Ship(int sid, int sp, Maneuverability m, int ac, int tl, int dm, int crit, int pcc, int hp, int * shield);
+
+	int getID();
+	void setID(int);
 
 	int getCost();								// 
 	void setCost(int);							// 

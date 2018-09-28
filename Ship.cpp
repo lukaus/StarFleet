@@ -4,12 +4,15 @@ using std::to_string;
 
         Ship::Ship()
 {
+    id = -1;
     x_pos = 0;
     y_pos = 0;
 }
 
-        Ship::Ship(int sp, Maneuverability m, int ac, int tl, int dm, int crit, int pcc, int hp, int * shield)
+        Ship::Ship(int sid, int sp, Maneuverability m, int ac, int tl, int dm, int crit, int pcc, int hp, int * shield)
 {
+    id = sid;
+
     x_pos = 0;
     y_pos = 0;
 
@@ -29,6 +32,16 @@ using std::to_string;
         shieldTot[i] = shield[i];
         shieldCur[i] = shield[i];
     }
+}
+
+int Ship::getID()
+{
+    return id;
+}
+
+void Ship::setID(int sid)
+{
+    id = sid;
 }
 
 int		Ship::getCost()

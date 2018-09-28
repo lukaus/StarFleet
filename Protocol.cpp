@@ -9,7 +9,7 @@
 
 using namespace std;
 
-#define SHIP_INTS (16) // up this when stuff added
+#define SHIP_INTS (17) // up this when stuff added
 
 int Protocol::ParseClientIDMessage(char * message, int message_size)
 {
@@ -50,6 +50,10 @@ std::vector<Ship*> Protocol::ParseShipMessage(int sd, char * message, int messag
         Ship* thisShip = new Ship();
 
         int val;
+        memcpy(&val, &message[message_index], sizeof(int));
+        message_index += sizeof(int);
+        thisShip->setID(val);
+
         memcpy(&val, &message[message_index], sizeof(int));
         message_index += sizeof(int);
         thisShip->setXpos(val);
@@ -133,7 +137,11 @@ char * Protocol::CrunchetizeMeCapn(int clientID, std::vector<Ship*> shipArr, int
     // prepare message
     for(int i = 0; i < shipArr.size(); i++)
     {
-        int val = shipArr[i]->getXpos();
+        int val = shipArr[i]->getID();
+        memcpy(&message[message_index], &val, sizeof(int));
+        message_index += sizeof(int);
+        
+        val = shipArr[i]->getXpos();
         memcpy(&message[message_index], &val, sizeof(int));
         message_index += sizeof(int);
         

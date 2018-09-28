@@ -25,13 +25,7 @@ using namespace std;
 #define FALSE  0 
 #define PORT 8081
 
-/*
-static std::vector<Ship*> ServerParseShipMessage(char * message, int message_size);
-static char* ServerCrunchetizeMeCapn(std::vector<Ship*> shipArr, int& message_size);
-static std::vector<Projectile*> ServerParseProjectileMessage(char* message);
-static char* ServerSerializeProjectileArray(std::vector<Projectile*> projArr);
-*/
-vector<Ship*> UpdateMasterList(vector<Ship*> &ml, vector<Ship*> &cl, int cid);
+void UpdateMasterList(vector<Ship*> &ml, vector<Ship*> &cl, int cid);
 
 int main(int argc , char *argv[])  
 {  
@@ -156,13 +150,6 @@ int main(int argc , char *argv[])
             //inform user of socket number - used in send and receive commands 
             printf("New connection , socket fd is %d , ip is : %s , port : %d \n" , new_socket , inet_ntoa(address.sin_addr) , ntohs(address.sin_port));  
             
-            //send new connection greeting message 
-           // if( send(new_socket, message, strlen(message), 0) != strlen(message) )  
-           // {  
-           //     perror("send");  
-           // }  
-            
-           // puts("Welcome message sent successfully");  
             //add new socket to array of sockets 
             for (int i = 0; i < max_clients; i++)  
             {  
@@ -245,15 +232,14 @@ int main(int argc , char *argv[])
 // ml - master list by reference
 // cl - client list by reference
 // cid- client id
-
-vector<Ship*> UpdateMasterList(vector<Ship*> &ml, vector<Ship*> &cl, int cid)
+void UpdateMasterList(vector<Ship*> &ml, vector<Ship*> &cl, int cid)
 {
-    // verify client (TODO)   
+    // verify client (TODO) - for now, probably can be as simple as making sure no client tried to change a ship.id
     
     if(ml.size() < cid+1)
         ml.push_back(new Ship());
-    ml[cid] = cl[0];
-    cerr << "MSL: " << ml.size() <<  "\n";
-    return ml;
+    ml[cid] = cl[cid];
+    cerr << "MSL size: " << ml.size() <<  "\n";
+    //return ml;
 }
 
