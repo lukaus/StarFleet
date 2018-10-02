@@ -100,7 +100,9 @@ private:
 public:
 
 	Ship();
+    Ship(const Ship&);
 	Ship(int sid, int sp, Maneuverability m, int ac, int tl, int dm, int crit, int pcc, int hp, int * shield);
+    ~Ship();
 
 	int getID();
 	void setID(int);
@@ -164,13 +166,13 @@ public:
 	string getExpansionBays();					// 
 	void addExpansionBay(string);				// 
 
-    int getXpos();
+    int getXpos() const;
     void setXpos(int);
 
-    int getYpos();
+    int getYpos() const;
     void setYpos(int);
 
-    Orientation getOrientation();
+    Orientation getOrientation() const;
     void setOrientation(Orientation);
 
     int getShieldCur(Shield);

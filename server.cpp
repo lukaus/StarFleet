@@ -166,7 +166,7 @@ int main(int argc , char *argv[])
                     memcpy(&client_id_msg[sizeof(char)], &sendIndex, sizeof(int)); 
                     send(client_socket[i], client_id_msg, sizeof(int) + sizeof(char), 0);
                     numShips++;
-                    cerr << "There are "<<sendIndex<<" ships.\n";
+                    cerr << "There are "<<numShips<<" ships.\n";
                     break;  
                 }  
             }  
@@ -202,8 +202,6 @@ int main(int argc , char *argv[])
                     buffer[valread] = '\0';
                     int fromClient;
                     std::vector<Ship*> clientShips = Protocol::ParseShipMessage(sd, buffer, valread, fromClient);
-                    cerr << "Client sent ship array size: " << clientShips.size() << endl;
-                    cerr << "Ship: " << clientShips[0]->toString() << endl;
                     int messageSize;
                     UpdateMasterList(masterShipList, clientShips, fromClient);
 
@@ -236,6 +234,5 @@ void UpdateMasterList(vector<Ship*> &ml, vector<Ship*> &cl, int cid)
     if(ml.size() < cid+1)
         ml.push_back(new Ship());
     ml[cid] = cl[cid];
-    cerr << "MSL size: " << ml.size() <<  "\n";
 }
 

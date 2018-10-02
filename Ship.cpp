@@ -34,6 +34,18 @@ using std::to_string;
     }
 }
 
+        Ship::Ship(const Ship& cpy)
+{
+    this->setXpos(cpy.getXpos());
+    this->setYpos(cpy.getYpos());
+    this->setOrientation(cpy.getOrientation());
+}
+
+    Ship::~Ship()
+{
+    
+}
+
 int Ship::getID()
 {
     return id;
@@ -236,7 +248,7 @@ void 	Ship::addExpansionBay(string s)
 }
 
 
-int     Ship::getXpos()
+int     Ship::getXpos() const
 {
     return x_pos;
 }
@@ -245,7 +257,7 @@ void    Ship::setXpos(int x)
     x_pos = x;
 }
 
-int     Ship::getYpos() 
+int     Ship::getYpos() const
 {
     return y_pos;
 }
@@ -254,7 +266,7 @@ void    Ship::setYpos(int y)
     y_pos = y;
 }
 
-Orientation Ship::getOrientation() 
+Orientation Ship::getOrientation() const
 {
     return orientation;
 }
@@ -322,9 +334,8 @@ string    Ship::toString()
     return toReturn;
 
 }
-Ship& Ship::operator= (const Ship &ship)
+Ship& Ship::operator=(const Ship &ship)
 {
-    // do the copy
     x_pos = ship.x_pos;
     y_pos = ship.y_pos;
     targetLock = ship.targetLock;
@@ -338,6 +349,5 @@ Ship& Ship::operator= (const Ship &ship)
     	shieldCur[i] = ship.shieldCur[i];
     }
  
-    // return the existing object so we can chain this operator
     return *this;
 }
