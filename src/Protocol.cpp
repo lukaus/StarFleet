@@ -49,42 +49,51 @@ std::vector<Ship*> Protocol::ParseShipMessage(int sd, char * message, int messag
     {
         Ship* thisShip = new Ship();
 
+        // 0:   ID
         int val;
         memcpy(&val, &message[message_index], sizeof(int));
         message_index += sizeof(int);
         thisShip->setID(val);
-
+    
+        // 1:   X pos
         memcpy(&val, &message[message_index], sizeof(int));
         message_index += sizeof(int);
         thisShip->setXpos(val);
 
+        // 2:   Y pos
         memcpy(&val, &message[message_index], sizeof(int));
         message_index += sizeof(int);
         thisShip->setYpos(val);
 
+        // 3:  orientation 
         memcpy(&val, &message[message_index], sizeof(int));
         message_index += sizeof(int);
         thisShip->setOrientation( (Orientation) val);
 
+        // 4:   HP cur
         memcpy(&val, &message[message_index], sizeof(int));
         message_index += sizeof(int);
         thisShip->setHullPointsCur(val);
 
+        // 5; HP max
         memcpy(&val, &message[message_index], sizeof(int));
         message_index += sizeof(int);
         thisShip->setHullPointsMax(val);
 
+        // 6:   target lock
         memcpy(&val, &message[message_index], sizeof(int));
         message_index += sizeof(int);
         thisShip->setTargetLock(val);
 
+        // 7; Armour Class
         memcpy(&val, &message[message_index], sizeof(int));
         message_index += sizeof(int);
         thisShip->setArmourClass(val);
 
+        // 8:   attack bonus
         memcpy(&val, &message[message_index], sizeof(int));
         message_index += sizeof(int);
-       // thisShip->setXpos(val); // attack bonus
+        thisShip->setAttackBonus(val); // attack bonus
 
         for(int j = 0; j < 4; j++)
         {
@@ -99,7 +108,6 @@ std::vector<Ship*> Protocol::ParseShipMessage(int sd, char * message, int messag
         shipArray.push_back(thisShip);
 
     }
-    //cerr << "Serialization complete, " << shipArray.size() << " ships.\n";
     return shipArray;
 }
 
@@ -113,7 +121,6 @@ std::vector<Projectile*> Protocol::ParseProjectileMessage(char* message)
 char * Protocol::CrunchetizeMeCapn(int clientID, std::vector<Ship*> shipArr, int &message_size)
 {
     message_size = sizeof(char) + sizeof(int) + sizeof(int) + sizeof(int) + (shipArr.size() * (sizeof(int) * SHIP_INTS));
-    //cerr << "message_size: " << message_size << endl;
     char* message = new char[message_size];
 
     char message_type = 'S';
@@ -129,7 +136,6 @@ char * Protocol::CrunchetizeMeCapn(int clientID, std::vector<Ship*> shipArr, int
     memcpy(&message[message_index], &clientID, sizeof(int));
     message_index += sizeof(int); // skip to next byte
   
-    //cerr << "NumShips index, storing: " << message_index << endl;  
     memcpy(&message[message_index], &numberOfShips, sizeof(int));
     message_index += sizeof(int); // skip to next byte
     
@@ -137,49 +143,50 @@ char * Protocol::CrunchetizeMeCapn(int clientID, std::vector<Ship*> shipArr, int
     // prepare message
     for(int i = 0; i < shipArr.size(); i++)
     {
+        // 0:   ID
         int val = shipArr[i]->getID();
         memcpy(&message[message_index], &val, sizeof(int));
         message_index += sizeof(int);
         
+        // 1:   X pos
         val = shipArr[i]->getXpos();
         memcpy(&message[message_index], &val, sizeof(int));
         message_index += sizeof(int);
         
-        // 16:   y pos
+        // 2:   y pos
         val = shipArr[i]->getYpos();
         memcpy(&message[message_index], &val, sizeof(int));
         message_index += sizeof(int);
         
-        // 16:   orientation
+        // 3:   orientation
         val = (int)shipArr[i]->getOrientation();
         memcpy(&message[message_index], &val, sizeof(int));
         message_index += sizeof(int);
         
-        // 16:   HP (cur)
+        // 4:   HP (cur)
         val = shipArr[i]->getHullPointsCur();
         memcpy(&message[message_index], &val, sizeof(int));
         message_index += sizeof(int);
-        // 16:   HP (tot)
-        
+
+        // 5:   HP (tot)
         val = shipArr[i]->getHullPointsMax();
         memcpy(&message[message_index], &val, sizeof(int));
         message_index += sizeof(int);
         
-        // 16:   TL
+        // 6:   TL
         val = shipArr[i]->getTargetLock();
         memcpy(&message[message_index], &val, sizeof(int));
         message_index += sizeof(int);
        
-        // 16:   AC
+        // 7:   AC
         val = shipArr[i]->getArmourClass();
         memcpy(&message[message_index], &val, sizeof(int));
         message_index += sizeof(int);
       
-        // 16:   attack bonus
+        // 8:   attack bonus
         val = (int) 0;
         memcpy(&message[message_index], &val, sizeof(int));
         message_index += sizeof(int);
-        // 16*4: current shield values
         
         for(int j = 0; j < 4; j++)
         {

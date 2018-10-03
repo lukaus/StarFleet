@@ -16,6 +16,7 @@ using std::to_string;
     x_pos = 0;
     y_pos = 0;
 
+    attackBonus = 0;
     speed = sp;
     maneuv = m;
     armourClass = ac;
@@ -117,6 +118,15 @@ int     Ship::getHullPointsCur()
 void    Ship::setHullPointsCur(int n)
 {
     hullPointsCur = n;
+}
+
+int     Ship::getAttackBonus()
+{
+    return attackBonus;
+}
+void    Ship::setAttackBonus(int b)
+{
+    attackBonus = b;
 }
 
 int 	Ship::getPowerCoreTotal()

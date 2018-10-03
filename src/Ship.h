@@ -66,6 +66,7 @@ private:
 	int targetLock;				// 
 	int damageThreshold;		// 
 	int criticalThreshold;		// 
+    int attackBonus;
 	string* systems;			// 
 	string* expansionBays;		// 
 
@@ -126,6 +127,9 @@ public:
 
 	int getHullPointsCur();						// 
 	void setHullPointsCur(int);					// 
+
+    int getAttackBonus();
+    void setAttackBonus(int);
 		
 	int getPowerCoreTotal();					// 
 	void setPowerCoreTotal(int);				// 

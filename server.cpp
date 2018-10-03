@@ -52,9 +52,6 @@ int main(int argc , char *argv[])
     //set of socket descriptors 
     fd_set readfds;  
         
-    // Hey don't worry about this. Its nuthin
-   // char *message = "";  
-    
     //initialise all client_socket[] to 0 so not checked 
     for (int i = 0; i < max_clients; i++)  
     {  
@@ -212,7 +209,7 @@ int main(int argc , char *argv[])
                         if (client_socket[i] != 0)
                             send(client_socket[i] , sendBack/* buffer*/, messageSize /*strlen(buffer)*/ , 0);
                     }
-                    // celery buffer
+                    // clear celery buffer
                     memset(buffer, 0, sizeof(buffer));
                 }  
             }  

@@ -138,7 +138,6 @@ public:
     {
         if(ValidCoordinates(grid, x, y) == false || myTurn == false)
         {
-            cout << "Invalid move, reverted.\n";   
             return;
         }
 
@@ -167,7 +166,6 @@ public:
         switch (this->ship->getOrientation())
         {
         case EAST:
-            cout << " EAST\n";
             if (this->ship->getXpos() == gridCols)
                 return;
             this->ship->setXpos(this->ship->getXpos() + 1);
@@ -175,7 +173,6 @@ public:
             break;
 
         case NORTHEAST:
-            cout << " NORTHEAST\n";
             if ((this->ship->getXpos() == gridCols && this->ship->getYpos() % 2 == 0) || this->ship->getYpos() == 0)
                 return;
             if(this->ship->getYpos() % 2 == 0 )
@@ -184,8 +181,6 @@ public:
             break;
 
         case NORTHWEST:
-            cout << " NORTHWEST\n";
-
             if ((this->ship->getXpos() == 0 && this->ship->getYpos() % 2 != 0) || this->ship->getYpos() == 0)
                 return;
             if (this->ship->getYpos() % 2 != 0)
@@ -194,8 +189,6 @@ public:
             break;
 
         case WEST:
-            cout << " WEST\n";
-
             if (this->ship->getXpos() == 0)
                 return;
             this->ship->setXpos(this->ship->getXpos() - 1);
@@ -203,7 +196,6 @@ public:
             break;
 
         case SOUTHWEST:
-            cout << " SOUTHWEST\n";
             if ((this->ship->getXpos() == 0 && this->ship->getYpos() % 2 != 0) || this->ship->getYpos() == gridRows)
                 return;
             if (this->ship->getYpos() % 2 != 0)
@@ -212,7 +204,6 @@ public:
             break;
 
         case SOUTHEAST:
-            cout << " SOUTHEAST\n";
 
             if ((this->ship->getXpos() == gridCols && this->ship->getYpos() % 2 == 0) || this->ship->getYpos() == gridRows)
                 return;
@@ -221,9 +212,6 @@ public:
             this->ship->setYpos(this->ship->getYpos() + 1);
             break;
         }
-        sf::Vector3f cubial;
-        cout << "( " << cubial.x << ", " << cubial.y << ", " << cubial.z << ") \n";
-        cout << "( " << this->ship->getXpos() << ", " << this->ship->getYpos() << " )\n";
     }
     void Back(HexGrid grid)
     {
@@ -264,7 +252,7 @@ void checkerThread(vector<Ship*>* ships, int* clientShip)
 
         if(!strcmp(receivedMessage, "exit"))
         {
-            cout << "Server has quit the session" << endl;
+            cerr << "Server has quit the session" << endl;
             exit(0);
         }
 
@@ -274,7 +262,6 @@ void checkerThread(vector<Ship*>* ships, int* clientShip)
 
         MsgType msgType = MsgType::Invalid;
         memcpy(&msgType, &receivedMessage[0], sizeof(char));
-        //cerr << "Message type is : " << static_cast<char>(msgType) << endl;
         std::vector<Ship*> resultShips;
        	int fromServer = -1;
         switch(static_cast<char>(msgType))
@@ -300,7 +287,6 @@ void checkerThread(vector<Ship*>* ships, int* clientShip)
                 }
 
                 *ships = resultShips;
-                cerr << "cid = " << *clientShip << endl;
                 break;
 
             case static_cast<char>(MsgType::Projectiles):
@@ -339,7 +325,7 @@ int main(int argc, char *argv[])
 
     if(status < 0)
     {
-        cout << "Error connecting to server!" << endl;
+        cerr << "Error connecting to server!" << endl;
         exit(0);
     }
     else
@@ -446,7 +432,6 @@ int main(int argc, char *argv[])
     sf::Event event;
     inputDelayTimer.restart();
 
-    cerr << "Initial message: Size is " << ships.size() << endl;
     int initial_message_length;
     char * initial_message = Protocol::CrunchetizeMeCapn(clientShip, ships, initial_message_length); 
     send(clientSd, initial_message, initial_message_length, 0);
@@ -472,8 +457,6 @@ int main(int argc, char *argv[])
                 {
                     sf::Vector2f gridOrigin = grid.getOrigin();
 
-                    cout << "( " << event.mouseButton.x << ", " << event.mouseButton.y << " )\n";
-
                     // left button down
                     leftMouseDragging = true;
                     mPos_old = window.mapPixelToCoords(sf::Mouse::getPosition(window));
@@ -483,14 +466,12 @@ int main(int argc, char *argv[])
                 {
                     // right button down, set highlight selector
                     sf::Vector2f clickPosition = grid.pixel_to_offset(sf::Vector2f(mousePos.x, mousePos.y));
-                    cout << "Click at : " << clickPosition.x << ", " << clickPosition.y << endl;
                     selector.setPosition(grid.offset_to_pixel(clickPosition));
                     // check that grid for a ship at the new position
                     int oldSelectIndex = selectedShipIndex;
                     DrawShip* shipHere = GetShipHere(clickPosition, drawShips, selectedShipIndex);
                     if(selectedShipIndex == -1)
                     {
-                        cerr << "Deselecting ship\n";
                         shipSelected = false;
                         selectedShip = NULL;
                         selectedShipIndex = -1;
@@ -499,8 +480,6 @@ int main(int argc, char *argv[])
                     else
                     {
                         oldSelectIndex = selectedShipIndex;
-                        cerr << "Ship here: \n" << shipHere->getShip()->toString();
-                        cerr << "Selecting " << clickPosition.x << ", " << clickPosition.y << endl;
                         selectedShipOverlay.setPosition(grid.offset_to_pixel(clickPosition));
                         selector.setPosition(sf::Vector2f(grid.offset_to_pixel(sf::Vector2f(999,999))));
                         shipSelected = true;
@@ -583,7 +562,6 @@ int main(int argc, char *argv[])
                 mPos_old = window.mapPixelToCoords(sf::Mouse::getPosition(window));
                 break;
             case sf::Event::MouseWheelScrolled:
-                // 80 - 5000
                 delt = event.mouseWheelScroll.delta;
                 if (delt == 1.0)
                 {
@@ -724,15 +702,12 @@ DrawShip * GetShipHere(sf::Vector2f pos, vector<DrawShip*> & shipList, int& selS
 // Properly populate the drawShip array based on the cid and the number of ships from server
 void CheckDrawShips(vector<DrawShip*>& drawShips, vector<Ship*>& ships, int& cid)
 {
-    // memory leak in here
     for (int i = drawShips.size()-1; i >= 0; i--)
     {
         delete drawShips[i];
         drawShips[i] = nullptr;
         drawShips.erase(drawShips.begin() + i);
     }
-    //drawShips.clear();
-
     // Find client ship
     for(int i = 0; i < ships.size(); i++)
     {
