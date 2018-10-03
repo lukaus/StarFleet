@@ -57,6 +57,15 @@ void Ship::setID(int sid)
     id = sid;
 }
 
+int Ship::getOwner()
+{
+    return ownerCID;
+}
+void Ship::setOwner(int o)
+{
+    ownerCID = o;
+}
+
 int		Ship::getCost()
 {
 	return cost;

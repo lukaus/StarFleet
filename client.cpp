@@ -238,7 +238,7 @@ DrawShip * GetShipHere(sf::Vector2f pos, vector<DrawShip*> & shipList, int& selS
 void CheckDrawShips(vector<DrawShip*>& drawShips, vector<Ship*>& ships, int& cid);
 
 // Thread to check for server sending messages
-void checkerThread(vector<Ship*>* ships, int* clientShip)
+void checkerThread(vector<Ship*>* ships, int* cid)
 {
     // Buffer for the message incoming
     char receivedMessage[1500];
@@ -267,9 +267,9 @@ void checkerThread(vector<Ship*>* ships, int* clientShip)
         switch(static_cast<char>(msgType))
         {
             case static_cast<char>(MsgType::ClientID):
-                *clientShip = Protocol::ParseClientIDMessage(receivedMessage, size);
-                cerr << "Client ID received : " << *clientShip << "\n";
-                while(ships->size() < *clientShip)
+                *cid = Protocol::ParseClientIDMessage(receivedMessage, size);
+                cerr << "Client ID received : " << *cid << "\n";
+                while(ships->size() < *cid)
                 {
                     cerr << "Ship size is " << ships->size() << "Adding entry\n"; 
                     ships->push_back(new Ship());
@@ -332,10 +332,10 @@ int main(int argc, char *argv[])
         cout << "Connected to the server!" << endl;
 
     std::vector<Ship*> ships;
-    int clientShip = 0; // index for this client's DrawShip in ships vector
+    int cid = 0; // index for this client's DrawShip in ships vector
 
     // Spawn the thread to check for incoming messages from the server
-    thread t1(checkerThread, &ships, &clientShip);
+    thread t1(checkerThread, &ships, &cid);
     // window logic
     sf::RenderWindow window(sf::VideoMode(1270, 720), "Starfinder Commander");
     window.setFramerateLimit(60);
@@ -378,9 +378,10 @@ int main(int argc, char *argv[])
 
     // Create initial client ship
     Ship* shp = new Ship();
-    shp->setXpos(clientShip);
-    shp->setYpos(clientShip);
-    shp->setID(clientShip);
+    shp->setXpos(cid);
+    shp->setYpos(cid);
+    shp->setOwner(cid);
+    shp->setID(cid);
     shp->setArmourClass(20);
     shp->setTargetLock(10);
     shp->setHullPointsMax(100);
@@ -433,7 +434,7 @@ int main(int argc, char *argv[])
     inputDelayTimer.restart();
 
     int initial_message_length;
-    char * initial_message = Protocol::CrunchetizeMeCapn(clientShip, ships, initial_message_length); 
+    char * initial_message = Protocol::CrunchetizeMeCapn(cid, ships, initial_message_length); 
     send(clientSd, initial_message, initial_message_length, 0);
 
     delete initial_message;
@@ -441,7 +442,7 @@ int main(int argc, char *argv[])
    
     while (window.isOpen())
     {
-        CheckDrawShips(drawShips, ships, clientShip);   // Make sure ship list is still up to date (might make more sense for CheckerThread to just do this? 
+        CheckDrawShips(drawShips, ships, cid);   // Make sure ship list is still up to date (might make more sense for CheckerThread to just do this? 
                             // hopefully there won't be any race condition type things that happen)
         while (window.pollEvent(event))
         {
@@ -622,28 +623,28 @@ int main(int argc, char *argv[])
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
             {
                 moved = true;
-                drawShips[clientShip]->Left();
+                drawShips[cid]->Left();
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
             {
                 moved = true;
-                drawShips[clientShip]->Right();
+                drawShips[cid]->Right();
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
             {
                 moved = true;
-                drawShips[clientShip]->Forward(grid);
+                drawShips[cid]->Forward(grid);
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
             {
                 moved = true;
-                drawShips[clientShip]->Back(grid);
+                drawShips[cid]->Back(grid);
             }
 
             if(moved)
             {
                 int message_length;
-                char * message = Protocol::CrunchetizeMeCapn(clientShip, ships, message_length); 
+                char * message = Protocol::CrunchetizeMeCapn(cid, ships, message_length); 
                 send(clientSd, message, message_length, 0);
 
                 delete message;

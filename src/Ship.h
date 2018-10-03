@@ -53,7 +53,6 @@ class Ship
 private:
 	// Non-changing fields
 	int id;						// Unique identifier for ship
-
 	int ownerCID;				// ClientID of client who owns ship 
 								// The following are all truly defiened in the Starfinder Core Rulebook
 	string name;				// 
@@ -107,6 +106,9 @@ public:
 
 	int getID();
 	void setID(int);
+
+	int getOwner();
+	void setOwner(int);
 
 	int getCost();								// 
 	void setCost(int);							// 
