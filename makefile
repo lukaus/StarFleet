@@ -1,4 +1,4 @@
-MAIN		= main.cpp
+MAIN		= client.cpp
 SERVER		= server.cpp
 PROGRAMS	= src/HexGrid.cpp src/Crewman.cpp src/Ship.cpp src/Protocol.cpp src/Projectile.cpp
 COMPFLAGS	= -std=c++11 -o
