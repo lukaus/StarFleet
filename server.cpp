@@ -13,9 +13,9 @@
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros 
 #include <vector>
 #include <cstring>
-#include "Ship.h"
-#include "Projectile.h"
-#include "Protocol.h"
+#include "src/Ship.h"
+#include "src/Projectile.h"
+#include "src/Protocol.h"
 
 using namespace std;    
 

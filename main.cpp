@@ -10,11 +10,11 @@
 #include <string.h>
 #include <netdb.h>
 #include <thread>
-#include "HexGrid.h"
-#include "Ship.h"
-#include "Crewman.h"
-#include "Projectile.h"
-#include "Protocol.h"
+#include "src/HexGrid.h"
+#include "src/Ship.h"
+#include "src/Crewman.h"
+#include "src/Projectile.h"
+#include "src/Protocol.h"
 //#include <boost/serialization/list.hpp>
 
 #define DRAG_TIMEOUT 200			// in milliseconds
@@ -376,6 +376,8 @@ int main(int argc, char *argv[])
 
     sf::Font font;
     if (!font.loadFromFile("testFont.ttf")) {
+        cerr << "Failed locate font: \"testFont.ttf\" in executable directory\n";
+        return -1;
     }
     sf::Text hudText;
     hudText.setFont(font);

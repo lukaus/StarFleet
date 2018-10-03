@@ -1,5 +1,6 @@
 MAIN		= main.cpp
-PROGRAMS	= HexGrid.cpp Crewman.cpp Ship.cpp Protocol.cpp Projectile.cpp
+SERVER		= server.cpp
+PROGRAMS	= src/HexGrid.cpp src/Crewman.cpp src/Ship.cpp src/Protocol.cpp src/Projectile.cpp
 COMPFLAGS	= -std=c++11 -o
 LINKFLAGS	= -lsfml-graphics -lsfml-window -lsfml-system -lpthread
 COMPILER	= g++
@@ -11,7 +12,7 @@ main : $(MAIN) $(PROGRAMS)
 	$(COMPILER) $(COMPFLAGS) $(EXECUTABLE) $(MAIN) $(PROGRAMS) $(LINKFLAGS)
 
 clean:
-	rm *.o $(EXECUTABLE) server
+	-@rm *.o $(EXECUTABLE) server vgcore.* 2>/dev/null || true
 
 debug:
 	$(COMPILER) $(COMPFLAGS) -ggdb $(EXECUTABLE) $(MAIN) $(PROGRAMS) $(LINKFLAGS)
@@ -24,6 +25,6 @@ assembly:
 	g++ -c main.cpp HexGrid.cpp Crewman.cpp Ship.cpp Projectile.cpp Protocol.cpp -S
 	g++ main.o HexGrid.o Crewman.o Ship.o Protocol.o Projectile.o -o starFleet -lsfml-graphics -lsfml-window -lsfml-system -lpthread
 
-server: server.cpp Ship.cpp Protocol.cpp
-	g++ -c -std=c++11 -ggdb server.cpp Ship.cpp Protocol.cpp
+server: $(SERVER) $(PROGRAMS) 
+	g++ -c -std=c++11 -ggdb $(SERVER) $(PROGRAMS) 
 	g++ server.o Ship.o Protocol.o -o server
