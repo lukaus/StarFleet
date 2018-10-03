@@ -375,8 +375,8 @@ int main(int argc, char *argv[])
     Ship * selectedShip = NULL;
 
     sf::Font font;
-    if (!font.loadFromFile("testFont.ttf")) {
-        cerr << "Failed locate font: \"testFont.ttf\" in executable directory\n";
+    if (!font.loadFromFile("res/testFont.ttf")) {
+        cerr << "Failed locate font: \"res/testFont.ttf\" in executable directory\n";
         return -1;
     }
     sf::Text hudText;
