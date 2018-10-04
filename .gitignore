@@ -5,3 +5,8 @@ server
 *.jpg
 vgcore.*
 *.gch
+
+# permission to use the following fonts has not yet been given, so do not check them in
+res/FINALOLD.TTF
+res/Jefferies.otf
+res/Okuda.otf

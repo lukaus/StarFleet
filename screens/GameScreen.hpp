@@ -345,9 +345,9 @@ public:
         origin.y = 100;
         HexGrid grid(0, 0, 100, 100, 20, sf::LinesStrip);
 
-        sf::VertexArray testGrid;
-        testGrid.setPrimitiveType(grid.GetPrimitiveType());
-        testGrid = grid.GenerateHexGrid();
+        sf::VertexArray hexGrid;
+        hexGrid.setPrimitiveType(grid.GetPrimitiveType());
+        hexGrid = grid.GenerateHexGrid();
 
         bool leftMouseDragging = false;
         bool potentialDoubleLeftClick = false;
@@ -362,7 +362,7 @@ public:
         Ship * selectedShip = NULL;
 
         sf::Font font;
-        if (!font.loadFromFile("res/testFont.ttf")) {
+        if (!font.loadFromFile("res/big.ttf")) {
             cerr << "Failed locate font: \"res/testFont.ttf\" in executable directory\n";
             return -1;
         }
@@ -663,7 +663,7 @@ public:
             window.clear();
             
             window.setView(camera);
-            window.draw(testGrid);
+            window.draw(hexGrid);
             DrawShips(window, grid, drawShips);
             window.draw(selector);
             window.draw(selectedShipOverlay);
@@ -677,6 +677,12 @@ public:
         t1.join();
         close(clientSd);
         return 0;
+    }
+
+    void closeGame()
+    {
+        //t1.join();
+        //close(cliestSd);
     }
 
     void DrawShips(sf::RenderWindow &window, HexGrid &grid, vector<DrawShip*> & shipList)

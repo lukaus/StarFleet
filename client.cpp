@@ -29,15 +29,26 @@ int main(int argc, char *argv[])
     sf::RenderWindow window(sf::VideoMode(1270, 720), "Starfinder Commander");
     window.setFramerateLimit(60);
 
+    MainMenu mainMenu;
+    Settings settings;
     GameScreen gameScreen;
-    gameScreen.setServerInfo(serverIp, port);
+    PauseMenu pauseMenu;
 
+    gameScreen.setServerInfo(serverIp, port);
+    mainMenu.setGameScreen(&gameScreen);
+    settings.setGameScreen(&gameScreen);
+    pauseMenu.setGameScreen(&gameScreen);
+
+    Screens.push_back(&mainMenu);
     Screens.push_back(&gameScreen);
+    Screens.push_back(&settings);
+    Screens.push_back(&pauseMenu);
 
     while(screen != -1)
     {
         screen = Screens[screen]->Run(window);
     }
+    gameScreen.closeGame();
 
 	return 0;
 }
