@@ -1,6 +1,6 @@
 MAIN		= client.cpp
 SERVER		= server.cpp
-PROGRAMS	= Screens.hpp screens/Screen.hpp screens/Game.hpp src/HexGrid.cpp src/Crewman.cpp src/Ship.cpp src/Protocol.cpp src/Projectile.cpp
+PROGRAMS	= Screens.hpp screens/Screen.hpp screens/GameScreen.hpp src/HexGrid.cpp src/Crewman.cpp src/Ship.cpp src/Protocol.cpp src/Projectile.cpp
 COMPFLAGS	= -std=c++11 -o
 LINKFLAGS	= -lsfml-graphics -lsfml-window -lsfml-system -lpthread
 COMPILER	= g++
@@ -12,7 +12,7 @@ main : $(MAIN) $(PROGRAMS)
 	$(COMPILER) $(COMPFLAGS) $(EXECUTABLE) $(MAIN) $(PROGRAMS) $(LINKFLAGS)
 
 clean:
-	-@rm *.o $(EXECUTABLE) server vgcore.* 2>/dev/null || true
+	-@rm *.o $(EXECUTABLE) server vgcore.* *.gch screens/*.gch 2>/dev/null || true
 
 debug:
 	$(COMPILER) $(COMPFLAGS) -ggdb $(EXECUTABLE) $(MAIN) $(PROGRAMS) $(LINKFLAGS)
@@ -28,3 +28,4 @@ assembly:
 server: $(SERVER) $(PROGRAMS) 
 	g++ -c -std=c++11 -ggdb $(SERVER) $(PROGRAMS) 
 	g++ server.o Ship.o Protocol.o -o server
+	rm *.gch screens/*.gch
