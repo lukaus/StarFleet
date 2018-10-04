@@ -1,6 +1,6 @@
 MAIN		= client.cpp
 SERVER		= server.cpp
-PROGRAMS	= src/HexGrid.cpp src/Crewman.cpp src/Ship.cpp src/Protocol.cpp src/Projectile.cpp
+PROGRAMS	= Screens.hpp screens/Screen.hpp screens/Game.hpp src/HexGrid.cpp src/Crewman.cpp src/Ship.cpp src/Protocol.cpp src/Projectile.cpp
 COMPFLAGS	= -std=c++11 -o
 LINKFLAGS	= -lsfml-graphics -lsfml-window -lsfml-system -lpthread
 COMPILER	= g++
