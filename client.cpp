@@ -17,14 +17,13 @@ int main(int argc, char *argv[])
     int screen = 0;
     vector<Screen*> Screens;
 
-    if(argc != 3)
-    {
-        cerr << "Usage: ip_address port" << endl; exit(0); 
-    } 
+    char *serverIp;
+    int port;
     // Gets the IP and Port
-    char *serverIp = argv[1]; 
-    int port = atoi(argv[2]);
-
+    if(argc >= 3){
+        serverIp = argv[1]; 
+        port = atoi(argv[2]);
+    }
     // window logic
     sf::RenderWindow window(sf::VideoMode(1270, 720), "Starfinder Commander");
     window.setFramerateLimit(60);

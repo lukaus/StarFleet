@@ -361,13 +361,8 @@ public:
         int selectedShipIndex = -1;
         Ship * selectedShip = NULL;
 
-        sf::Font font;
-        if (!font.loadFromFile("res/big.ttf")) {
-            cerr << "Failed locate font: \"res/testFont.ttf\" in executable directory\n";
-            return -1;
-        }
         sf::Text hudText;
-        hudText.setFont(font);
+        hudText.setFont(textFont2);
         hudText.setPosition(0,-15);
         string mystring = ("~MYSHIP~\nSHIELD:\n\tF:\n\tB:\n\tL:\n\tR:\nHEALTH:\nSPEED:\nPOWER:\n\tCURR:\n\tAVAIL:\n\t");
         hudText.setString(mystring);
