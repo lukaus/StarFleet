@@ -3,6 +3,7 @@ starFleet
 server
 *.png
 *.jpg
+*.gif
 vgcore.*
 *.gch
 
