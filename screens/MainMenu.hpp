@@ -2,6 +2,7 @@
 #define MAINMENU_HPP
 
 #include <iostream>
+#include <string>
 #include <vector>
 #include "Screen.hpp"
 #include "GameScreen.hpp"
@@ -13,8 +14,17 @@ private:
     GameScreen * gameScreen; // need to be able to call setup on this
     void scaleToWidth(sf::Text& obj, double desiredScale, int width)
     {
-        float scaleFactor = (width / (obj.getGlobalBounds().width+(obj.getCharacterSize() / 10)));
+        string objString = obj.getString();
+        int stringLength = objString.length();
+        float scaleFactor = (width / (obj.getGlobalBounds().width+(obj.getCharacterSize()) / stringLength));
         obj.setScale(scaleFactor * desiredScale, scaleFactor * desiredScale );
+    }
+    void scaleToHeight(sf::Text& obj, double desiredScale, int height)
+    {
+        string objString = obj.getString();
+        int stringLength = objString.length();
+        float scaleFactor = (height / (obj.getGlobalBounds().height ));
+        obj.scale(scaleFactor * desiredScale, scaleFactor * desiredScale);
     }
 
 public:
@@ -54,6 +64,36 @@ public:
         vector<sf::Drawable*> uiElements;
 
         sf::Text title;
+        sf::Text playTxt;
+        sf::Text optionsTxt;
+        sf::Text serverTxt;
+        sf::Text quitTxt;
+
+        playTxt.setFont(subMenuFont);
+        optionsTxt.setFont(subMenuFont);
+        serverTxt.setFont(subMenuFont);
+        quitTxt.setFont(subMenuFont);
+
+        playTxt.setString("LOCAL");
+        serverTxt.setString("CONNECT");
+        optionsTxt.setString("OPTIONS");
+        quitTxt.setString("QUIT");
+
+        playTxt.setFillColor(sf::Color(22, 22, 22));
+        optionsTxt.setFillColor(sf::Color(22, 22, 22));
+        serverTxt.setFillColor(sf::Color(22, 22, 22));
+        quitTxt.setFillColor(sf::Color(22, 22, 22));
+
+        playTxt.setCharacterSize(1000);
+        optionsTxt.setCharacterSize(1000);
+        serverTxt.setCharacterSize(1000);
+        quitTxt.setCharacterSize(1000);
+
+        scaleToWidth(playTxt, 0.6, window.getSize().x * 0.6);
+        scaleToWidth(optionsTxt, 0.6, window.getSize().x * 0.6);
+        scaleToWidth(serverTxt, 0.6, window.getSize().x * 0.6);
+        scaleToWidth(quitTxt, 0.6, window.getSize().x * 0.6);
+
         title.setFont(headerFont);
         title.setString("STAR FLEET");
         title.setFillColor(sf::Color(255, 153, 0));
@@ -67,6 +107,12 @@ public:
 
         float buttonWidth = window.getSize().x / 5;
         float buttonHeight = buttonWidth / 5;
+
+        scaleToHeight(playTxt, 0.8, buttonHeight);
+        scaleToHeight(optionsTxt, 0.8, buttonHeight);
+        scaleToHeight(serverTxt, 0.8, buttonHeight);
+        scaleToHeight(quitTxt, 0.8, buttonHeight);
+
         sf::Vector2f size(buttonWidth, buttonHeight);
         sf::RoundedRectangleShape playBtn(size, 10.0, 10);
         playBtn.setCornersRadius(5);
@@ -91,6 +137,16 @@ public:
         quitBtn.setFillColor(sf::Color(204, 102, 153));
         uiElements.push_back(&quitBtn);
         quitBtn.setPosition((window.getSize().x / 5) * 2, (optionsBtn.getPosition().y + optionsBtn.getGlobalBounds().height*3) + 10);
+
+        playTxt.setPosition(playBtn.getPosition().x + (buttonWidth / 5),           playBtn.getPosition().y - (buttonHeight / 2.5));
+        optionsTxt.setPosition(optionsBtn.getPosition().x + (buttonWidth / 10),     optionsBtn.getPosition().y - (buttonHeight / 2.5));
+        serverTxt.setPosition(playServerBtn.getPosition().x + (buttonWidth / 12),   playServerBtn.getPosition().y - (buttonHeight / 2.5));
+        quitTxt.setPosition(quitBtn.getPosition().x + (buttonWidth / 3.2),          quitBtn.getPosition().y - (buttonHeight / 4.0));
+
+        uiElements.push_back(&playTxt);
+        uiElements.push_back(&optionsTxt);
+        uiElements.push_back(&serverTxt);
+        uiElements.push_back(&quitTxt);
 
         for(int i = 0; i < uiElements.size(); i++)
             window.draw(*uiElements[i]);
