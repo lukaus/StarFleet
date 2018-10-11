@@ -2,6 +2,7 @@
 #define SCREEN_HPP
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <iostream>
 #include "../src/ui/RoundedRectangle.hpp"
 class Screen
@@ -17,6 +18,9 @@ public:
     bool text2FontL = true;
     bool headerFontL = true;
     bool subMenuFontL = true;
+
+    sf::Sound menuBeep;
+    sf::SoundBuffer menuSoundBuf;
 
     Screen()
     {
@@ -42,6 +46,25 @@ public:
         }
         fontError = (text1FontL && text2FontL && headerFontL && subMenuFontL);
 
+        if(menuSoundBuf.loadFromFile("res/shortBeep.wav"))
+            menuBeep.setBuffer(menuSoundBuf);
+    }
+    ~Screen()
+    {
+
+    }
+
+    bool within(int checkx, int checky, int x1, int x2, int y1, int y2)
+    {
+        if(checkx >= x1 && checkx <= x2 && checky >= y1 && checky <= y2)
+            return true;
+        return false;
+
+    }
+
+    void playMenuHiliteSound()
+    {
+        menuBeep.play();
     }
 
     virtual int Run(sf::RenderWindow &Program) = 0;

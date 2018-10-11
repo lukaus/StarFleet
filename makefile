@@ -2,7 +2,7 @@ MAIN		= client.cpp
 SERVER		= server.cpp
 PROGRAMS	= Screens.hpp src/HexGrid.cpp src/Crewman.cpp src/Ship.cpp src/Protocol.cpp src/Projectile.cpp
 COMPFLAGS	= -std=c++11 -o
-LINKFLAGS	= -lsfml-graphics -lsfml-window -lsfml-system -lpthread
+LINKFLAGS	= -lsfml-graphics -lsfml-audio -lsfml-window -lsfml-system -lpthread
 COMPILER	= g++
 EXECUTABLE	= starFleet
 

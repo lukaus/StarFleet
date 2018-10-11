@@ -1,7 +1,6 @@
 #ifndef GAME_HPP
 #define GAME_HPP
 
-#include <SFML/Graphics.hpp>
 #include <iostream>
 #include <string>
 #include <list>
@@ -239,10 +238,6 @@ public:
                 this->ship->setOrientation((Orientation)((int)this->ship->getOrientation() - 1));
         }
     };
-
-    //void DrawShips(sf::RenderWindow & window, HexGrid &grid, vector<DrawShip*> & shipList);
-    //DrawShip * GetShipHere(sf::Vector2f pos, vector<DrawShip*> & shipList, int& selShpInd);
-    //void CheckDrawShips(vector<DrawShip*>& drawShips, vector<Ship*>& ships, int& cid);
 
     // Thread to check for server sending messages
     static void checkerThread(vector<Ship*>* ships, int* cid, int* clientSd)

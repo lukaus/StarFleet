@@ -12,6 +12,7 @@ class MainMenu : public Screen
 {
 private:
     GameScreen * gameScreen; // need to be able to call setup on this
+    int hilite = -1;
     void scaleToWidth(sf::Text& obj, double desiredScale, int width)
     {
         string objString = obj.getString();
@@ -35,31 +36,6 @@ public:
     int Run(sf::RenderWindow & window)
     {
         int selection = 0;
-
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            switch (event.type)
-            {
-                case sf::Event::KeyPressed:
-                    //selection = 1;
-                    break;
-                case sf::Event::MouseButtonPressed:
-                    selection = 1;
-                    break;
-
-                default:
-                    break;
-            }
-            if (event.type == sf::Event::Resized)
-            {
-                // update the view to the new size of the window
-                sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
-                window.setView(sf::View(visibleArea));
-            }
-        }
-
-        window.clear();
 
         vector<sf::Drawable*> uiElements;
 
@@ -148,6 +124,79 @@ public:
         uiElements.push_back(&serverTxt);
         uiElements.push_back(&quitTxt);
 
+        sf::Event event;
+        while (window.pollEvent(event))
+        {
+            sf::Vector2f mPos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+            int oldHilite = hilite;
+            switch (event.type)
+            {
+                case sf::Event::MouseMoved:
+                    if(within(mPos.x, mPos.y, playBtn.getPosition().x, playBtn.getPosition().x + buttonWidth, playBtn.getPosition().y, playBtn.getPosition().y + buttonHeight))
+                    {
+                        hilite = 0;
+                    }
+                    else if(within(mPos.x, mPos.y, playServerBtn.getPosition().x, playServerBtn.getPosition().x + buttonWidth, playServerBtn.getPosition().y, playServerBtn.getPosition().y + buttonHeight))
+                    {
+                        hilite = 1;
+                    }
+                    else if(within(mPos.x, mPos.y, optionsBtn.getPosition().x, optionsBtn.getPosition().x + buttonWidth, optionsBtn.getPosition().y, optionsBtn.getPosition().y + buttonHeight))
+                    {
+                        hilite = 2;
+                    }
+                    else if(within(mPos.x, mPos.y, quitBtn.getPosition().x, quitBtn.getPosition().x + buttonWidth, quitBtn.getPosition().y, quitBtn.getPosition().y + buttonHeight))
+                    {
+                        hilite = 3;
+                    }
+                    else
+                        hilite = -1;
+                    
+                    break;
+
+                case sf::Event::KeyPressed:
+                    //selection = 1;
+                    break;
+                case sf::Event::MouseButtonPressed:
+                    selection = 1;
+                    break;
+
+                default:
+                    break;
+            }
+            if(hilite != -1 && oldHilite != hilite)
+                playMenuHiliteSound();
+            if (event.type == sf::Event::Resized)
+            {
+                // update the view to the new size of the window
+                sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
+                window.setView(sf::View(visibleArea));
+            }
+        }
+        
+        switch(hilite)
+        {
+            case 0:
+                playBtn.setFillColor(sf::Color(153, 153, 204));
+                playTxt.setFillColor(sf::Color(255, 255, 255));
+                break;
+            case 1:
+                playServerBtn.setFillColor(sf::Color(153, 153, 204));
+                serverTxt.setFillColor(sf::Color(255, 255, 255));
+                break;
+            case 2:
+                optionsBtn.setFillColor(sf::Color(153, 153, 204));
+                optionsTxt.setFillColor(sf::Color(255, 255, 255));
+                break;
+            case 3:
+                quitBtn.setFillColor(sf::Color(153, 153, 204));
+                quitTxt.setFillColor(sf::Color(255, 255, 255));
+                break;
+            default:
+
+                break;
+        }
+
+        window.clear();
         for(int i = 0; i < uiElements.size(); i++)
             window.draw(*uiElements[i]);
 
