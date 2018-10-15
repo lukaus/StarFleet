@@ -154,10 +154,27 @@ public:
                     break;
 
                 case sf::Event::KeyPressed:
-                    //selection = 1;
                     break;
                 case sf::Event::MouseButtonPressed:
-                    selection = 1;
+                    switch(hilite)
+                    {
+                        case 0:
+                            selection = 1;
+                            break;
+                        case 1:
+                            gameScreen->setServerInfo((char *)"localhost", 8081);
+                            gameScreen->openGame(window);
+                            selection = 1;
+                            break;
+                        case 2:
+                            selection = 2;
+                            break;
+                        case 3:
+                            selection = -1;
+                            break;
+                        default:
+                            break;
+                    }
                     break;
 
                 default:

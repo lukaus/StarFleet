@@ -17,8 +17,8 @@ public:
     }
     int Run(sf::RenderWindow & window)
     {
-        bool play = false;
-        window.clear();
+        int selection = 2;
+        window.clear(sf::Color(122, 122, 122));
 
         sf::Event event;
         while (window.pollEvent(event))
@@ -26,22 +26,17 @@ public:
             switch (event.type)
             {
                 case sf::Event::KeyPressed:
-                    play = true;
                     break;
                 case sf::Event::MouseButtonPressed:
-                    play = true;
+                    selection = 0;
                     break;
                 default:
                     break;
             }
         }
 
-        if(play)
-        {
-            return 1;
-        }
         window.display();
-        return 2; 
+        return selection; 
     }
 };
 

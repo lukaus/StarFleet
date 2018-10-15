@@ -28,20 +28,24 @@ int main(int argc, char *argv[])
     sf::RenderWindow window(sf::VideoMode(1270, 720), "Starfinder Commander");
     window.setFramerateLimit(60);
 
+    sf::View defaultView = window.getView();
+
     MainMenu mainMenu;
     Settings settings;
     GameScreen gameScreen;
     PauseMenu pauseMenu;
 
-    gameScreen.setServerInfo(serverIp, port);
     mainMenu.setGameScreen(&gameScreen);
     settings.setGameScreen(&gameScreen);
     pauseMenu.setGameScreen(&gameScreen);
 
-    Screens.push_back(&mainMenu);
-    Screens.push_back(&gameScreen);
-    Screens.push_back(&settings);
-    Screens.push_back(&pauseMenu);
+    Screens.push_back(&mainMenu);   // 0 - Main Menu 
+    Screens.push_back(&gameScreen); // 1 - Game Screen
+    Screens.push_back(&settings);   // 2 - Settings Screen
+    Screens.push_back(&pauseMenu);  // 3 - Pause Menu
+
+    for(int i = 0; i < Screens.size(); i++)
+        Screens[i]->setDefaultView(defaultView);
 
     while(screen != -1)
     {

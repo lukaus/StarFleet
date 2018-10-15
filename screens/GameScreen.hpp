@@ -27,15 +27,14 @@ using namespace std;
 
 class GameScreen : public Screen
 {
-private:
-    // Global variable for the client socket descripter...needed for thread
-    char* serverIp;
-    int port;
 public:
+    sf::View camera;
+
     enum class MsgType : char{
         ClientID = 'C',
         Ships = 'S',
         Projectiles = 'P',
+        CloseSocket = '0',
         Invalid = 'Z'
     };
 
@@ -47,6 +46,7 @@ public:
         sf::Texture* tex;
 
         bool myTurn = true;
+
     public:
 
         DrawShip()
@@ -240,11 +240,11 @@ public:
     };
 
     // Thread to check for server sending messages
-    static void checkerThread(vector<Ship*>* ships, int* cid, int* clientSd)
+    static void checkerThread(vector<Ship*>* ships, int* cid, int* clientSd, bool * chkPtr)
     {
         // Buffer for the message incoming
         char receivedMessage[1500];
-        while (1)
+        while (*chkPtr)
         {
             // Clear buffer
             memset(receivedMessage, 0, sizeof(receivedMessage));
@@ -306,19 +306,19 @@ public:
         port = p;
     }
 
-    int Run(sf::RenderWindow & window)
+    void openGame(sf::RenderWindow & window)
     {
         // Setup a socket and connection tools 
-        struct hostent* host = gethostbyname(serverIp); 
+        host = gethostbyname(serverIp); 
         sockaddr_in sendSockAddr;   
         bzero((char*)&sendSockAddr, sizeof(sendSockAddr)); 
         sendSockAddr.sin_family = AF_INET; 
         sendSockAddr.sin_addr.s_addr = inet_addr(inet_ntoa(*(struct in_addr*)*host->h_addr_list));
         sendSockAddr.sin_port = htons(port);
-        int clientSd = socket(AF_INET, SOCK_STREAM, 0);
+        clientSd = socket(AF_INET, SOCK_STREAM, 0);
 
         // Try to connect
-        int status = connect(clientSd, (sockaddr*) &sendSockAddr, sizeof(sendSockAddr));
+        status = connect(clientSd, (sockaddr*) &sendSockAddr, sizeof(sendSockAddr));
 
         if(status < 0)
         {
@@ -328,35 +328,22 @@ public:
         else
             cout << "Connected to the server!" << endl;
 
-        std::vector<Ship*> ships;
-        int cid = 0; // index for this client's DrawShip in ships vector
+        cid = 0; // index for this client's DrawShip in ships vector
 
         // Spawn the thread to check for incoming messages from the server
-        thread t1(checkerThread, &ships, &cid, &clientSd);
+        t1 = thread(checkerThread, &ships, &cid, &clientSd, &check);
         // window logic
         window.setFramerateLimit(60);
-        sf::Vector2f origin;
-        origin.x = 100;
-        origin.y = 100;
-        HexGrid grid(0, 0, 100, 100, 20, sf::LinesStrip);
 
-        sf::VertexArray hexGrid;
         hexGrid.setPrimitiveType(grid.GetPrimitiveType());
         hexGrid = grid.GenerateHexGrid();
 
-        bool leftMouseDragging = false;
-        bool potentialDoubleLeftClick = false;
-        sf::View camera = window.getView();
-        sf::View hud = sf::View(window.getView());
+        camera = window.getView();
+        hud = sf::View(window.getView());
 
         sf::Vector2u winSize = window.getSize();
         sf::Vector2f mPos_old = window.getView().getCenter();
         
-        bool shipSelected;
-        int selectedShipIndex = -1;
-        Ship * selectedShip = NULL;
-
-        sf::Text hudText;
         hudText.setFont(textFont2);
         hudText.setPosition(0,-15);
         string mystring = ("~MYSHIP~\nSHIELD:\n\tF:\n\tB:\n\tL:\n\tR:\nHEALTH:\nSPEED:\nPOWER:\n\tCURR:\n\tAVAIL:\n\t");
@@ -364,8 +351,6 @@ public:
         hudText.setCharacterSize(35);
         hudText.setFillColor(sf::Color(255,255,255,255));
         hudText.setStyle(sf::Text::Bold);
-        sf::Clock leftDragTimer;
-        sf::Clock doubleLeftClickTimer;
 
         // Create initial client ship
         Ship* shp = new Ship();
@@ -387,13 +372,10 @@ public:
         shp->setShieldCur(Shield::Starboard, 95);
         ships.push_back(shp);
         // Game logic
-        vector<DrawShip*> drawShips;
-        sf::Clock inputDelayTimer;
 
 #pragma region GameLogic
         // Interface items
-        sf::CircleShape selector(20, 6);
-        sf::Vector2f selectorPosition = selector.getOrigin();
+        selectorPosition = selector.getOrigin();
 
         selectorPosition.x = selector.getOrigin().x + (selector.getLocalBounds().height / 2);
         selectorPosition.y = selector.getOrigin().y + (selector.getLocalBounds().height / 2);
@@ -403,8 +385,7 @@ public:
 
         selector.setPosition(sf::Vector2f(grid.offset_to_pixel(sf::Vector2f(999, 999))));
 
-        sf::CircleShape selectedShipOverlay(20,6);
-        sf::Vector2f selectedShipPosition = selectedShipOverlay.getOrigin();
+        selectedShipPosition = selectedShipOverlay.getOrigin();
 
         selectedShipPosition.x = selectedShipOverlay.getOrigin().x + (selectedShipOverlay.getLocalBounds().height / 2);
         selectedShipPosition.y = selectedShipOverlay.getOrigin().y + (selectedShipOverlay.getLocalBounds().height / 2);
@@ -415,14 +396,7 @@ public:
         selectedShipOverlay.setPosition(sf::Vector2f(grid.offset_to_pixel(sf::Vector2f(999,999))));
 
 #pragma endregion
-        float delt;
-        int clickCount = 0;
-        bool rotated = false;
-        sf::Vector2f mousePos;
-
         winSize = window.getSize();
-        sf::Event event;
-        inputDelayTimer.restart();
 
         int initial_message_length;
         char * initial_message = Protocol::CrunchetizeMeCapn(cid, ships, initial_message_length); 
@@ -430,249 +404,264 @@ public:
 
         delete initial_message;
         initial_message = nullptr;
-       
-        while (window.isOpen())
+        inputDelayTimer.restart();
+    }
+
+    int Run(sf::RenderWindow & window)
+    {
+        int selection = 1;
+        CheckDrawShips(drawShips, ships, cid);   // Make sure ship list is still up to date (might make more sense for CheckerThread to just do this? 
+                            // hopefully there won't be any race condition type things that happen)
+        while (window.pollEvent(event))
         {
-            CheckDrawShips(drawShips, ships, cid);   // Make sure ship list is still up to date (might make more sense for CheckerThread to just do this? 
-                                // hopefully there won't be any race condition type things that happen)
-            while (window.pollEvent(event))
+            if (event.type == sf::Event::Closed)
+                window.close();
+            switch (event.type)
             {
-                if (event.type == sf::Event::Closed)
-                    window.close();
-                switch (event.type)
-                {
 #pragma region movement
 
-                case sf::Event::MouseButtonPressed:
-                    mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-                    if (event.mouseButton.button == sf::Mouse::Left)
-                    {
-                        sf::Vector2f gridOrigin = grid.getOrigin();
+            case sf::Event::MouseButtonPressed:
+                mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+                if (event.mouseButton.button == sf::Mouse::Left)
+                {
+                    sf::Vector2f gridOrigin = grid.getOrigin();
 
-                        // left button down
-                        leftMouseDragging = true;
-                        mPos_old = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-                        leftDragTimer.restart();
-                    }
-                    if (event.mouseButton.button == sf::Mouse::Right)
-                    {
-                        // right button down, set highlight selector
-                        sf::Vector2f clickPosition = grid.pixel_to_offset(sf::Vector2f(mousePos.x, mousePos.y));
-                        selector.setPosition(grid.offset_to_pixel(clickPosition));
-                        // check that grid for a ship at the new position
-                        int oldSelectIndex = selectedShipIndex;
-                        DrawShip* shipHere = GetShipHere(clickPosition, drawShips, selectedShipIndex);
-                        if(selectedShipIndex == -1)
-                        {
-                            shipSelected = false;
-                            selectedShip = NULL;
-                            selectedShipIndex = -1;
-                            selectedShipOverlay.setPosition(grid.offset_to_pixel(sf::Vector2f(999,999)));
-                        }
-                        else
-                        {
-                            oldSelectIndex = selectedShipIndex;
-                            selectedShipOverlay.setPosition(grid.offset_to_pixel(clickPosition));
-                            selector.setPosition(sf::Vector2f(grid.offset_to_pixel(sf::Vector2f(999,999))));
-                            shipSelected = true;
-                            selectedShip = shipHere->getShip();
-                        }
-                    }
-                    if (event.mouseButton.button == sf::Mouse::Middle)
-                    {
-                        // middle button down
-                    }
-                    break;
-
-                case sf::Event::MouseButtonReleased:
-                    mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-                    if (event.mouseButton.button == sf::Mouse::Left)
-                    {
-                        // left button up
-                        leftMouseDragging = false;
-                        if (leftDragTimer.getElapsedTime().asMilliseconds() < DRAG_TIMEOUT)
-                        {
-                            // Click or double click
-                            clickCount++;
-
-                            if (clickCount == 1)
-                            {
-                                doubleLeftClickTimer.restart();
-                            }
-
-                            if (clickCount > 1 && doubleLeftClickTimer.getElapsedTime().asMilliseconds() < DOUBLE_CLICK_TIMEOUT)
-                            {
-                                clickCount = 0;
-                                doubleLeftClickTimer.restart();
-                            }
-                            else if (clickCount > 2 || doubleLeftClickTimer.getElapsedTime().asMilliseconds() > DOUBLE_CLICK_TIMEOUT)
-                            {
-                                clickCount = 0;
-                                doubleLeftClickTimer.restart();
-
-                            }
-                        }
-                    }
-
-                    if (event.mouseButton.button == sf::Mouse::Right)
-                    {
-                        // right button up
-
-                    }
-                    if (event.mouseButton.button == sf::Mouse::Middle)
-                    {
-                        // middle button up
-
-                    }
-                    break;
-
-                case sf::Event::MouseMoved:
-                    if (leftMouseDragging)
-                    {
-                        // move window
-
-                        sf::Vector2f mPos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-
-                        float xMove = mPos_old.x - mPos.x;
-                        float yMove = mPos_old.y - mPos.y;
-
-
-                        camera.move(xMove, yMove);
-
-                        // limit camera to bounds 0,0 - 3405, 2967 
-                        if (camera.getCenter().x < 0)
-                            camera.setCenter(0.0, camera.getCenter().y);
-                        if (camera.getCenter().x > 3406)
-                            camera.setCenter(3406, camera.getCenter().y);
-                        if (camera.getCenter().y < 0)
-                            camera.setCenter(camera.getCenter().x, 0.0);
-                        if (camera.getCenter().y > 2968)
-                            camera.setCenter(camera.getCenter().x, 2968);
-
-                        window.setView(camera);
-                    }
+                    // left button down
+                    leftMouseDragging = true;
                     mPos_old = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-                    break;
-                case sf::Event::MouseWheelScrolled:
-                    delt = event.mouseWheelScroll.delta;
-                    if (delt == 1.0)
+                    leftDragTimer.restart();
+                }
+                if (event.mouseButton.button == sf::Mouse::Right)
+                {
+                    // right button down, set highlight selector
+                    sf::Vector2f clickPosition = grid.pixel_to_offset(sf::Vector2f(mousePos.x, mousePos.y));
+                    selector.setPosition(grid.offset_to_pixel(clickPosition));
+                    // check that grid for a ship at the new position
+                    int oldSelectIndex = selectedShipIndex;
+                    DrawShip* shipHere = GetShipHere(clickPosition, drawShips, selectedShipIndex);
+                    if(selectedShipIndex == -1)
                     {
-                        camera.zoom(0.8);
-                        if (camera.getSize().x < 80)
-                        {
-                            camera.zoom(1.25);
-                        }
-                        window.setView(camera);
+                        shipSelected = false;
+                        selectedShip = NULL;
+                        selectedShipIndex = -1;
+                        selectedShipOverlay.setPosition(grid.offset_to_pixel(sf::Vector2f(999,999)));
                     }
-                    if (delt == -1.0)
+                    else
+                    {
+                        oldSelectIndex = selectedShipIndex;
+                        selectedShipOverlay.setPosition(grid.offset_to_pixel(clickPosition));
+                        selector.setPosition(sf::Vector2f(grid.offset_to_pixel(sf::Vector2f(999,999))));
+                        shipSelected = true;
+                        selectedShip = shipHere->getShip();
+                    }
+                }
+                if (event.mouseButton.button == sf::Mouse::Middle)
+                {
+                    // middle button down
+                }
+                break;
+
+            case sf::Event::MouseButtonReleased:
+                mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+                if (event.mouseButton.button == sf::Mouse::Left)
+                {
+                    // left button up
+                    leftMouseDragging = false;
+                    if (leftDragTimer.getElapsedTime().asMilliseconds() < DRAG_TIMEOUT)
+                    {
+                        // Click or double click
+                        clickCount++;
+
+                        if (clickCount == 1)
+                        {
+                            doubleLeftClickTimer.restart();
+                        }
+
+                        if (clickCount > 1 && doubleLeftClickTimer.getElapsedTime().asMilliseconds() < DOUBLE_CLICK_TIMEOUT)
+                        {
+                            clickCount = 0;
+                            doubleLeftClickTimer.restart();
+                        }
+                        else if (clickCount > 2 || doubleLeftClickTimer.getElapsedTime().asMilliseconds() > DOUBLE_CLICK_TIMEOUT)
+                        {
+                            clickCount = 0;
+                            doubleLeftClickTimer.restart();
+
+                        }
+                    }
+                }
+
+                if (event.mouseButton.button == sf::Mouse::Right)
+                {
+                    // right button up
+
+                }
+                if (event.mouseButton.button == sf::Mouse::Middle)
+                {
+                    // middle button up
+
+                }
+                break;
+
+            case sf::Event::MouseMoved:
+                if (leftMouseDragging)
+                {
+                    // move window
+
+                    sf::Vector2f mPos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
+                    float xMove = mPos_old.x - mPos.x;
+                    float yMove = mPos_old.y - mPos.y;
+
+
+                    camera.move(xMove, yMove);
+
+                    // limit camera to bounds 0,0 - 3405, 2967 
+                    if (camera.getCenter().x < 0)
+                        camera.setCenter(0.0, camera.getCenter().y);
+                    if (camera.getCenter().x > 3406)
+                        camera.setCenter(3406, camera.getCenter().y);
+                    if (camera.getCenter().y < 0)
+                        camera.setCenter(camera.getCenter().x, 0.0);
+                    if (camera.getCenter().y > 2968)
+                        camera.setCenter(camera.getCenter().x, 2968);
+
+                    window.setView(camera);
+                }
+                mPos_old = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+                break;
+            case sf::Event::MouseWheelScrolled:
+                delt = event.mouseWheelScroll.delta;
+                if (delt == 1.0)
+                {
+                    camera.zoom(0.8);
+                    if (camera.getSize().x < 80)
                     {
                         camera.zoom(1.25);
-                        if (camera.getSize().x > 5000)
-                        {
-                            camera.zoom(0.8);
-                        }
-
-                        window.setView(camera);
                     }
-
-                    break;
-                case sf::Event::KeyPressed:
-                    if(event.key.code == sf::Keyboard::R)
-                    {
-                        if (rotated)
-                        {
-                            camera.rotate(-30.0);
-                        }
-                        else
-                        {
-                            camera.rotate(30.0);
-                        }
-                        window.setView(camera);
-                        rotated = !rotated;
-                    }
-                    break;
+                    window.setView(camera);
                 }
-                if (event.type == sf::Event::Resized)
+                if (delt == -1.0)
                 {
-                    // update the view to the new size of the window
-                    sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
-                    camera = sf::View(visibleArea);
-                    hud = sf::View(visibleArea);
-                  
-                    window.setView(sf::View(visibleArea));
+                    camera.zoom(1.25);
+                    if (camera.getSize().x > 5000)
+                    {
+                        camera.zoom(0.8);
+                    }
+
+                    window.setView(camera);
                 }
+
+                break;
+            case sf::Event::KeyPressed:
+                if(event.key.code == sf::Keyboard::R)
+                {
+                    if (rotated)
+                    {
+                        camera.rotate(-30.0);
+                    }
+                    else
+                    {
+                        camera.rotate(30.0);
+                    }
+                    window.setView(camera);
+                    rotated = !rotated;
+                }
+                else if (event.key.code == sf::Keyboard::Escape)
+                {
+                    return 3;
+                }
+                break;
+            }
+            if (event.type == sf::Event::Resized)
+            {
+                // update the view to the new size of the window
+                sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
+                camera = sf::View(visibleArea);
+                hud = sf::View(visibleArea);
+              
+                window.setView(sf::View(visibleArea));
+            }
 #pragma endregion
 #pragma region Selection
 
 #pragma endregion
-                if(inputDelayTimer.getElapsedTime().asMilliseconds() < INPUT_DELAY)
-                    continue;
-                inputDelayTimer.restart();
-            
+            if(inputDelayTimer.getElapsedTime().asMilliseconds() < INPUT_DELAY)
+                continue;
+            inputDelayTimer.restart();
+        
 #pragma region testMovement
-                bool moved = false;
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-                {
-                    moved = true;
-                    drawShips[cid]->Left();
-                }
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-                {
-                    moved = true;
-                    drawShips[cid]->Right();
-                }
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-                {
-                    moved = true;
-                    drawShips[cid]->Forward(grid);
-                }
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-                {
-                    moved = true;
-                    drawShips[cid]->Back(grid);
-                }
-
-                if(moved)
-                {
-                    int message_length;
-                    char * message = Protocol::CrunchetizeMeCapn(cid, ships, message_length); 
-                    send(clientSd, message, message_length, 0);
-
-                    delete message;
-                    message = nullptr;
-                }
-                
-                if(shipSelected && selectedShipIndex != -1)
-                {
-                    selectedShipOverlay.setPosition(sf::Vector2f(grid.offset_to_pixel( drawShips[selectedShipIndex]->position() )));     
-                }
+            bool moved = false;
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+            {
+                moved = true;
+                drawShips[cid]->Left();
             }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+            {
+                moved = true;
+                drawShips[cid]->Right();
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+            {
+                moved = true;
+                drawShips[cid]->Forward(grid);
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+            {
+                moved = true;
+                drawShips[cid]->Back(grid);
+            }
+
+            if(moved)
+            {
+                int message_length;
+                char * message = Protocol::CrunchetizeMeCapn(cid, ships, message_length); 
+                send(clientSd, message, message_length, 0);
+
+                delete message;
+                message = nullptr;
+            }
+            
+            if(shipSelected && selectedShipIndex != -1)
+            {
+                selectedShipOverlay.setPosition(sf::Vector2f(grid.offset_to_pixel( drawShips[selectedShipIndex]->position() )));     
+            }
+        }
 
 #pragma endregion
 
-            window.clear();
-            
-            window.setView(camera);
-            window.draw(hexGrid);
-            DrawShips(window, grid, drawShips);
-            window.draw(selector);
-            window.draw(selectedShipOverlay);
+        window.clear();
+        
+        window.setView(camera);
+        window.draw(hexGrid);
+        DrawShips(window, grid, drawShips);
+        window.draw(selector);
+        window.draw(selectedShipOverlay);
 
-            window.setView(hud);
-            window.draw(hudText);
-            window.display();
-            window.setView(camera);
-        }
-
-        t1.join();
-        close(clientSd);
-        return 0;
+        window.setView(hud);
+        window.draw(hudText);
+        window.display();
+        window.setView(camera);
+        return selection;
     }
 
     void closeGame()
     {
-        //t1.join();
-        //close(cliestSd);
+        check = false;
+
+        int message_length = 0;
+        char * message;
+        char message_type = static_cast<char>(MsgType::CloseSocket);
+        memcpy(&message[message_length], &message_type, sizeof(char));
+        message_length += sizeof(char);
+        memcpy(&message[message_length], &cid, sizeof(int));
+        message_length += sizeof(int);
+
+        send(clientSd, message, message_length, 0);
+
+        t1.join();
+        close(clientSd);
     }
 
     void DrawShips(sf::RenderWindow &window, HexGrid &grid, vector<DrawShip*> & shipList)
@@ -736,5 +725,51 @@ public:
             }
         }
     }
+private:
+    // Global variable for the client socket descripter...needed for thread
+    char* serverIp;
+    int port;
+    // Game state and connection variables
+    int clientSd;
+    int status;
+    int cid;
+    thread t1;
+    struct hostent* host;
+
+    HexGrid grid = HexGrid(0, 0, 100, 100, 20, sf::LinesStrip);
+    std::vector<Ship*> ships;
+    vector<DrawShip*> drawShips;
+
+    sf::View hud;
+    sf::VertexArray hexGrid;
+    sf::Text hudText;
+    sf::CircleShape selector = sf::CircleShape(20, 6);
+
+    sf::Vector2u winSize;
+    sf::Vector2f mPos_old;
+        
+    sf::CircleShape selectedShipOverlay = sf::CircleShape(20,6);
+    sf::Vector2f selectedShipPosition;
+
+    bool rotated = false;
+
+    bool shipSelected;
+    int selectedShipIndex = -1;
+    Ship * selectedShip = NULL;
+    float delt;
+    int clickCount = 0;
+    sf::Vector2f mousePos;
+
+    sf::Clock leftDragTimer;
+    sf::Clock doubleLeftClickTimer;
+
+    bool leftMouseDragging = false;
+    bool potentialDoubleLeftClick = false;
+
+    sf::Clock inputDelayTimer;
+    sf::Event event;
+    sf::Vector2f selectorPosition; 
+    bool check = true;
+    static bool * chkPtr;
 };
 #endif

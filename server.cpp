@@ -23,6 +23,14 @@ using namespace std;
 #define FALSE  0 
 #define PORT 8081
 
+enum class MsgType : char{
+    ClientID = 'C',
+    Ships = 'S',
+    Projectiles = 'P',
+    CloseSocket = '0',
+    Invalid = 'Z'
+};
+
 void UpdateMasterList(vector<Ship*> &ml, vector<Ship*> &cl, int cid);
 
 int main(int argc , char *argv[])  
@@ -198,20 +206,33 @@ int main(int argc , char *argv[])
 
                     buffer[valread] = '\0';
                     int fromClient;
-                    std::vector<Ship*> clientShips = Protocol::ParseShipMessage(sd, buffer, valread, fromClient);
-                    int messageSize;
-                    UpdateMasterList(masterShipList, clientShips, fromClient);
-
-                    char* sendBack = Protocol::CrunchetizeMeCapn(-1, masterShipList, messageSize);
-                    
-                    for (int i = 0; i < max_clients; i++)
+                    char msgType = 'Z';
+                    memcpy(&msgType, &buffer[0], sizeof(char));
+                    if(msgType == static_cast<char>(MsgType::CloseSocket))
                     {
-                        if (client_socket[i] != 0)
-                            send(client_socket[i] , sendBack/* buffer*/, messageSize /*strlen(buffer)*/ , 0);
+                        memcpy(&fromClient, &buffer[sizeof(char)], sizeof(int));
+                        char * msg;
+                        memcpy(&msg[0], &fromClient, sizeof(int));
+                        send(client_socket[fromClient], msg, sizeof(int), 0);
+                        cerr << "Quit request from "<<fromClient<<"\n";
                     }
-                    // clear celery buffer
-                    memset(buffer, 0, sizeof(buffer));
-                }  
+                    else
+                    {
+                        std::vector<Ship*> clientShips = Protocol::ParseShipMessage(sd, buffer, valread, fromClient);
+                        int messageSize;
+                        UpdateMasterList(masterShipList, clientShips, fromClient);
+
+                        char* sendBack = Protocol::CrunchetizeMeCapn(-1, masterShipList, messageSize);
+                        
+                        for (int i = 0; i < max_clients; i++)
+                        {
+                            if (client_socket[i] != 0)
+                                send(client_socket[i] , sendBack/* buffer*/, messageSize /*strlen(buffer)*/ , 0);
+                        }
+                        // clear celery buffer
+                        memset(buffer, 0, sizeof(buffer));
+                    }  
+                }
             }  
         }  
     }  

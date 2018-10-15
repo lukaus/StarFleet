@@ -21,6 +21,12 @@ public:
 
     sf::Sound menuBeep;
     sf::SoundBuffer menuSoundBuf;
+    
+    sf::View defaultView;
+    void setDefaultView(sf::View v)
+    {
+        defaultView = v;
+    }
 
     Screen()
     {
