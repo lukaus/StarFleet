@@ -28,4 +28,4 @@ assembly:
 server: $(SERVER) $(PROGRAMS) 
 	g++ -c -std=c++11 -ggdb $(SERVER) $(PROGRAMS) 
 	g++ server.o Ship.o Protocol.o -o server
-	-@rm *.gch screens/*.gch 2>/dev/null || true
+	-@rm *.o *.gch screens/*.gch 2>/dev/null || true
