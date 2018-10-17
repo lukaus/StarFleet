@@ -7,7 +7,17 @@
 #include "../src/ui/RoundedRectangle.hpp"
 class Screen
 {
+protected:
+    Screen * gScreen; // need to be able to call setup on this
 public:
+    int index = -1;
+
+    int MainMenuIdx;
+    int PauseMenuIdx;
+    int GameScreenIdx;
+    int ServerPickerIdx;
+    int SettingsIdx;
+
     sf::Font textFont1;
     sf::Font textFont2;
     sf::Font headerFont;
@@ -27,6 +37,14 @@ public:
     {
         defaultView = v;
     }
+
+    void setGameScreen(Screen * gs)
+    {
+        gScreen = gs;
+    }
+
+    //virtual void openGame(sf::RenderWindow & window, bool local){}
+    //virtual void closeGame(){}
 
     Screen()
     {

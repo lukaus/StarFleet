@@ -9,5 +9,6 @@
 #include "screens/PauseMenu.hpp"
 #include "screens/Settings.hpp"
 #include "screens/GameScreen.hpp"
+#include "screens/ServerPicker.hpp"
 
 #endif

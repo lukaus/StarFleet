@@ -29,13 +29,10 @@ private:
     }
 
 public:
-    void setGameScreen(GameScreen * gs)
-    {
-        gameScreen = gs;
-    }
     int Run(sf::RenderWindow & window)
     {
-        int selection = 0;
+        gameScreen = (GameScreen*)gScreen;
+        int selection = index;
 
         vector<sf::Drawable*> uiElements;
 
@@ -159,15 +156,17 @@ public:
                     switch(hilite)
                     {
                         case 0:
-                            selection = 1;
+                            gameScreen->openGame(window, true);
+                            selection = GameScreenIdx;
                             break;
                         case 1:
                             gameScreen->setServerInfo((char *)"localhost", 8081);
-                            gameScreen->openGame(window);
-                            selection = 1;
+                            gameScreen->openGame(window, false);
+                            selection = GameScreenIdx;
                             break;
                         case 2:
-                            selection = 2;
+                            gameScreen->fromScreen = index;
+                            selection = SettingsIdx;
                             break;
                         case 3:
                             selection = -1;

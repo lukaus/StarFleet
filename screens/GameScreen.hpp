@@ -28,6 +28,7 @@ using namespace std;
 class GameScreen : public Screen
 {
 public:
+    int fromScreen = 0;
     sf::View camera;
 
     enum class MsgType : char{
@@ -304,34 +305,39 @@ public:
     {
         serverIp = sip;
         port = p;
+        cerr << "server info set\n";
     }
 
-    void openGame(sf::RenderWindow & window)
+    void openGame(sf::RenderWindow & window, bool local)
     {
-        // Setup a socket and connection tools 
-        host = gethostbyname(serverIp); 
-        sockaddr_in sendSockAddr;   
-        bzero((char*)&sendSockAddr, sizeof(sendSockAddr)); 
-        sendSockAddr.sin_family = AF_INET; 
-        sendSockAddr.sin_addr.s_addr = inet_addr(inet_ntoa(*(struct in_addr*)*host->h_addr_list));
-        sendSockAddr.sin_port = htons(port);
-        clientSd = socket(AF_INET, SOCK_STREAM, 0);
-
-        // Try to connect
-        status = connect(clientSd, (sockaddr*) &sendSockAddr, sizeof(sendSockAddr));
-
-        if(status < 0)
+        cerr << "local : " << local << endl;
+        if(local == false)
         {
-            cerr << "Error connecting to server!" << endl;
-            exit(0);
+            // Setup a socket and connection tools 
+            host = gethostbyname(serverIp); 
+            sockaddr_in sendSockAddr;   
+            bzero((char*)&sendSockAddr, sizeof(sendSockAddr)); 
+            sendSockAddr.sin_family = AF_INET; 
+            sendSockAddr.sin_addr.s_addr = inet_addr(inet_ntoa(*(struct in_addr*)*host->h_addr_list));
+            sendSockAddr.sin_port = htons(port);
+            clientSd = socket(AF_INET, SOCK_STREAM, 0);
+
+            // Try to connect
+            status = connect(clientSd, (sockaddr*) &sendSockAddr, sizeof(sendSockAddr));
+
+            if(status < 0)
+            {
+                cerr << "Error connecting to server!" << endl;
+                exit(0);
+            }
+            else
+                cout << "Connected to the server!" << endl;
+
+            cid = 0; // index for this client's DrawShip in ships vector
+
+            // Spawn the thread to check for incoming messages from the server
+            t1 = thread(checkerThread, &ships, &cid, &clientSd, &check);
         }
-        else
-            cout << "Connected to the server!" << endl;
-
-        cid = 0; // index for this client's DrawShip in ships vector
-
-        // Spawn the thread to check for incoming messages from the server
-        t1 = thread(checkerThread, &ships, &cid, &clientSd, &check);
         // window logic
         window.setFramerateLimit(60);
 
@@ -398,13 +404,16 @@ public:
 #pragma endregion
         winSize = window.getSize();
 
-        int initial_message_length;
-        char * initial_message = Protocol::CrunchetizeMeCapn(cid, ships, initial_message_length); 
-        send(clientSd, initial_message, initial_message_length, 0);
+        if(local == false)
+        {
+            int initial_message_length;
+            char * initial_message = Protocol::CrunchetizeMeCapn(cid, ships, initial_message_length); 
+            send(clientSd, initial_message, initial_message_length, 0);
 
-        delete initial_message;
-        initial_message = nullptr;
-        inputDelayTimer.restart();
+            delete initial_message;
+            initial_message = nullptr;
+            inputDelayTimer.restart();
+        }
     }
 
     int Run(sf::RenderWindow & window)

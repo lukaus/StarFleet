@@ -9,15 +9,12 @@ using namespace std;
 class Settings : public Screen
 {
 private:
-    GameScreen * gameScreen; // need to be able to call setup on this
+    GameScreen * gameScreen;
 public:
-    void setGameScreen(GameScreen * gs)
-    {
-        gameScreen = gs;
-    }
     int Run(sf::RenderWindow & window)
     {
-        int selection = 2;
+        gameScreen = (GameScreen*)gScreen;
+        int selection = SettingsIdx;
         window.clear(sf::Color(122, 122, 122));
 
         sf::Event event;
@@ -28,7 +25,7 @@ public:
                 case sf::Event::KeyPressed:
                     break;
                 case sf::Event::MouseButtonPressed:
-                    selection = 0;
+                    selection = gameScreen->fromScreen;
                     break;
                 default:
                     break;

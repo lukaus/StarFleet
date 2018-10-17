@@ -213,8 +213,8 @@ int main(int argc , char *argv[])
                         memcpy(&fromClient, &buffer[sizeof(char)], sizeof(int));
                         char * msg;
                         memcpy(&msg[0], &fromClient, sizeof(int));
-                        send(client_socket[fromClient], msg, sizeof(int), 0);
                         cerr << "Quit request from "<<fromClient<<"\n";
+                        send(client_socket[fromClient], msg, sizeof(int), 0);
                     }
                     else
                     {
@@ -229,9 +229,9 @@ int main(int argc , char *argv[])
                             if (client_socket[i] != 0)
                                 send(client_socket[i] , sendBack/* buffer*/, messageSize /*strlen(buffer)*/ , 0);
                         }
-                        // clear celery buffer
-                        memset(buffer, 0, sizeof(buffer));
                     }  
+                    // clear celery buffer
+                    memset(buffer, 0, sizeof(buffer));
                 }
             }  
         }  
