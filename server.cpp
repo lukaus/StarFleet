@@ -171,7 +171,7 @@ int main(int argc , char *argv[])
                     memcpy(&client_id_msg[sizeof(char)], &sendIndex, sizeof(int)); 
                     send(client_socket[i], client_id_msg, sizeof(int) + sizeof(char), 0);
                     numShips++;
-                    cerr << "There are "<<numShips<<" ships.\n";
+                    cerr << numShips << " ships in master list. "<< masterShipList.size()<<"\n";
                     break;  
                 }  
             }  

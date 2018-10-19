@@ -65,7 +65,6 @@ int main(int argc, char *argv[])
         screen = Screens[screen]->Run(window);
     }
     gameScreen.closeGame();
-    cerr << "Done.\n";
 
 	return 0;
 }

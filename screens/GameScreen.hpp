@@ -305,7 +305,6 @@ public:
     {
         serverIp = sip;
         port = p;
-        cerr << "server info set\n";
     }
 
     void openGame(sf::RenderWindow & window, bool local)
@@ -331,7 +330,7 @@ public:
                 exit(0);
             }
             else
-                cout << "Connected to the server!" << endl;
+                cerr << "Connected to the server!" << endl;
 
             cid = 0; // index for this client's DrawShip in ships vector
 
