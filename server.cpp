@@ -211,10 +211,10 @@ int main(int argc , char *argv[])
                     if(msgType == static_cast<char>(MsgType::CloseSocket))
                     {
                         memcpy(&fromClient, &buffer[sizeof(char)], sizeof(int));
-                        char * msg;
+                        char * msg = new char[sizeof(int)];
                         memcpy(&msg[0], &fromClient, sizeof(int));
-                        cerr << "Quit request from "<<fromClient<<"\n";
                         send(client_socket[fromClient], msg, sizeof(int), 0);
+                        cerr << "Quit request from client "<<fromClient<<"\n";
                     }
                     else
                     {
@@ -227,7 +227,7 @@ int main(int argc , char *argv[])
                         for (int i = 0; i < max_clients; i++)
                         {
                             if (client_socket[i] != 0)
-                                send(client_socket[i] , sendBack/* buffer*/, messageSize /*strlen(buffer)*/ , 0);
+                                send(client_socket[i] , sendBack, messageSize, 0);
                         }
                     }  
                     // clear celery buffer
