@@ -30,6 +30,7 @@ class GameScreen : public Screen
 public:
     int fromScreen = 0;
     sf::View camera;
+    bool localGame = true;
 
     enum class MsgType : char{
         ClientID = 'C',
@@ -137,7 +138,7 @@ public:
         {
             this->sprite->setPosition(grid.offset_to_pixel(sf::Vector2f((float)this->ship->getXpos(), (float)this->ship->getYpos())  ));
             this->sprite->setRotation(60.0 * this->ship->getOrientation());
-
+            
             window.draw( *this->sprite );
         }
 
@@ -309,7 +310,7 @@ public:
 
     void openGame(sf::RenderWindow & window, bool local)
     {
-        cerr << "local : " << local << endl;
+        localGame = local;
         if(local == false)
         {
             // Setup a socket and connection tools 
@@ -413,12 +414,17 @@ public:
             initial_message = nullptr;
             inputDelayTimer.restart();
         }
+        else
+        {
+
+        }
     }
 
     int Run(sf::RenderWindow & window)
     {
         int selection = 1;
         CheckDrawShips(drawShips, ships, cid);   // Make sure ship list is still up to date (might make more sense for CheckerThread to just do this? 
+
                             // hopefully there won't be any race condition type things that happen)
         while (window.pollEvent(event))
         {
@@ -643,6 +649,7 @@ public:
         
         window.setView(camera);
         window.draw(hexGrid);
+        //cerr << "   -   " << drawShips.size() << " : " << ships.size() << endl;
         DrawShips(window, grid, drawShips);
         window.draw(selector);
         window.draw(selectedShipOverlay);
@@ -656,6 +663,8 @@ public:
 
     void closeGame()
     {
+        if(localGame == true)
+            return;
         check = false;
 
         int message_length = 0;
